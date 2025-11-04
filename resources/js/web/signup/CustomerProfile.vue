@@ -1,0 +1,699 @@
+<template>
+  <div>
+    <div class="mb-4">
+      <div
+        class="px-4 py-1.5 sm:px-6 text-center bg-gradient-to-r from-xblue via-primary to-blue-600 rounded-md"
+      >
+        <template v-if="profile == '1'">
+          <h4
+            class="text-white"
+            v-html="
+              JSON.parse(user)?.is_package_amount_paid
+                ? regPageSetting?.reg_page_setting_detail?.[0]
+                    ?.step_4_acc_heading
+                : regPageSetting?.reg_page_setting_detail?.[0]?.step_4_heading
+            "
+          ></h4>
+        </template>
+        <template v-else>
+          <h4
+            class="text-white"
+            v-html="
+              regPageSetting?.reg_page_setting_detail?.[0]?.step_4_heading
+            "
+          ></h4>
+        </template>
+      </div>
+      <div class="my-4">
+        <div class="relative w-full mb-3">
+          <label
+            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            for="company-name"
+          >
+            {{
+              regPageSetting?.reg_page_setting_detail?.[0]?.step_4_name_label
+            }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            class="can-exp-input"
+            :placeholder="
+              regPageSetting?.reg_page_setting_detail?.[0]
+                ?.step_4_name_placeholder
+            "
+            @input="
+      handleInput($event.target.value, 'customer_profile_company_name');
+      clearValidationError('customer_profile_company_name');
+    "
+            :value="
+              form && form.has('customer_profile_company_name')
+                ? form.get('customer_profile_company_name')
+                : ''
+            "
+            id="customer_profile_company_name"
+          />
+          <Error
+            fieldName="customer_profile_company_name"
+            :validationErros="validationErros"
+          />
+        </div>
+        <div class="relative w-full mb-3">
+          <label
+            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            for="company-email"
+          >
+            {{
+              regPageSetting?.reg_page_setting_detail?.[0]?.step_4_email_label
+            }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            rows="1"
+            class="can-exp-input min-h-[60px] lg:min-h-full overflow-auto"
+            :placeholder="
+              regPageSetting?.reg_page_setting_detail?.[0]
+                ?.step_4_email_placeholder
+            "
+
+            @input="
+      handleInput($event.target.value, 'customer_profile_company_email');
+      clearValidationError('customer_profile_company_email');
+    "
+            :value="
+              form && form.has('customer_profile_company_email')
+                ? form.get('customer_profile_company_email')
+                : ''
+            "
+            @change="checkIsEmailValid($event.target.value)"
+            id="customer_profile_company_email"
+          />
+          <Error
+            fieldName="customer_profile_company_email"
+            :validationErros="validationErros"
+          />
+        </div>
+        <div class="relative w-full mb-3">
+          <label
+            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            for="mailing-address"
+          >
+            {{
+              regPageSetting?.reg_page_setting_detail?.[0]?.step_4_address_label
+            }}
+            <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            rows="4"
+            class="can-exp-input"
+            :placeholder="
+              regPageSetting?.reg_page_setting_detail?.[0]
+                ?.step_4_address_placeholder
+            "
+
+            @input="
+      handleInput($event.target.value, 'customer_profile_address');
+      clearValidationError('customer_profile_address');
+    "
+            :value="
+              form && form.has('customer_profile_address')
+                ? form.get('customer_profile_address')
+                : ''
+            "
+            id="customer_profile_address"
+          ></textarea>
+          <Error
+            fieldName="customer_profile_address"
+            :validationErros="validationErros"
+          />
+        </div>
+        <div class="relative w-full mb-3">
+          <label
+            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            for="phone"
+          >
+            {{
+              regPageSetting?.reg_page_setting_detail?.[0]?.step_4_phone_label
+            }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            class="can-exp-input"
+            :placeholder="
+              regPageSetting?.reg_page_setting_detail?.[0]
+                ?.step_4_phone_placeholder
+            "
+
+            @input="
+      handleInput($event.target.value, 'customer_profile_phone');
+      clearValidationError('customer_profile_phone');
+    "
+            :value="
+              form && form.has('customer_profile_phone')
+                ? form.get('customer_profile_phone')
+                : ''
+            "
+            id="customer_profile_phone"
+            @keypress="restrictToNumbers($event, 16)"
+          />
+          <Error
+            fieldName="customer_profile_phone"
+            :validationErros="validationErros"
+          />
+        </div>
+        <div class="relative w-full mb-3">
+          <label
+            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            for="website"
+          >
+            {{
+              regPageSetting?.reg_page_setting_detail?.[0]?.step_4_website_label
+            }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            class="can-exp-input"
+            :placeholder="
+              regPageSetting?.reg_page_setting_detail?.[0]
+                ?.step_4_website_placeholder
+            "
+
+            @input="
+      handleInput($event.target.value, 'customer_profile_website');
+      clearValidationError('customer_profile_website');
+    "
+            :value="
+              form && form.has('customer_profile_website')
+                ? form.get('customer_profile_website')
+                : ''
+            "
+            id="customer_profile_website"
+          />
+          <Error
+            fieldName="customer_profile_website"
+            :validationErros="validationErros"
+          />
+        </div>
+        <div class="relative w-full mb-3" v-if="package_type !== 'free'">
+          <label
+            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            for="cta_btn"
+          >
+            {{
+              regPageSetting?.reg_page_setting_detail?.[0]?.step_4_cta_btn_label
+            }}
+            <!-- <span class="text-red-500">*</span> -->
+          </label>
+          <input
+            type="text"
+            class="can-exp-input"
+            :placeholder="
+              regPageSetting?.reg_page_setting_detail?.[0]
+                ?.step_4_cta_btn_placeholder
+            "
+
+            @input="
+      handleInput($event.target.value, 'customer_profile_cta_btn');
+      clearValidationError('customer_profile_cta_btn');
+    "
+            :value="
+              form && form.has('customer_profile_cta_btn')
+                ? form.get('customer_profile_cta_btn')
+                : ''
+            "
+            id="customer_profile_cta_btn"
+          />
+          <Error
+            fieldName="customer_profile_cta_btn"
+            :validationErros="validationErros"
+          />
+        </div>
+        <div class="relative w-full mb-3" v-if="package_type !== 'free'">
+          <label
+            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            for="cta_link"
+          >
+            {{
+              regPageSetting?.reg_page_setting_detail?.[0]?.step_4_cta_link_label
+            }}
+            <!-- <span class="text-red-500">*</span> -->
+          </label>
+          <input
+            type="text"
+            class="can-exp-input"
+            :placeholder="
+              regPageSetting?.reg_page_setting_detail?.[0]
+                ?.step_4_cta_link_placeholder
+            "
+
+            @input="
+      handleInput($event.target.value, 'customer_profile_cta_link');
+      clearValidationError('customer_profile_cta_link');
+    "
+            :value="
+              form && form.has('customer_profile_cta_link')
+                ? form.get('customer_profile_cta_link')
+                : ''
+            "
+            id="customer_profile_cta_link"
+          />
+          <Error
+            fieldName="customer_profile_cta_link"
+            :validationErros="validationErros"
+          />
+        </div>
+        <!-- <div class="relative w-full mb-3">
+          <label
+            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            for="short-description"
+          >
+            {{
+              regPageSetting?.reg_page_setting_detail?.[0]
+                ?.step_4_short_description_label
+            }}
+            <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            rows="3"
+            class="can-exp-input"
+            :placeholder="
+              regPageSetting?.reg_page_setting_detail?.[0]
+                ?.step_4_short_description_placeholder
+            "
+
+            @input="
+      handleInput($event.target.value, 'customer_profile_short_description');
+      clearValidationError('customer_profile_short_description');
+    "
+            :value="
+              form && form.has('customer_profile_short_description')
+                ? form.get('customer_profile_short_description')
+                : ''
+            "
+            id="customer_profile_short_description"
+          ></textarea>
+          <Error
+            fieldName="customer_profile_short_description"
+            :validationErros="validationErros"
+          />
+        </div>
+        <div class="relative w-full mb-3">
+          <label
+            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            for="detailed-description"
+          >
+            {{
+              regPageSetting?.reg_page_setting_detail?.[0]
+                ?.step_4_description_label
+            }}
+            <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            rows="3"
+            class="can-exp-input"
+            :placeholder="
+              regPageSetting?.reg_page_setting_detail?.[0]
+                ?.step_4_description_placeholder
+            "
+
+            @input="
+      handleInput($event.target.value, 'customer_profile_description');
+      clearValidationError('customer_profile_description');
+    "
+            :value="
+              form && form.has('customer_profile_description')
+                ? form.get('customer_profile_description')
+                : ''
+            "
+            id="customer_profile_description"
+          ></textarea>
+          <Error
+            fieldName="customer_profile_description"
+            :validationErros="validationErros"
+          />
+        </div> -->
+        <div class="relative w-full mb-3">
+  <label
+    class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+    for="short-description"
+  >
+    {{
+      regPageSetting?.reg_page_setting_detail?.[0]
+        ?.step_4_short_description_label
+    }}
+    <span class="text-red-500">*</span>
+  </label>
+  <textarea
+    rows="3"
+    class="can-exp-input"
+    :placeholder="
+      regPageSetting?.reg_page_setting_detail?.[0]
+        ?.step_4_short_description_placeholder
+    "
+    @input="
+      handleInput($event.target.value, 'customer_profile_short_description');
+      clearValidationError('customer_profile_short_description');
+      restrictToLength($event, 30, 'short')
+    "
+    :value="
+      form && form.has('customer_profile_short_description')
+        ? form.get('customer_profile_short_description')
+        : ''
+    "
+    id="customer_profile_short_description"
+  ></textarea>
+  <Error
+    fieldName="customer_profile_short_description"
+    :validationErros="validationErros"
+  />
+</div>
+
+<div class="relative w-full mb-3">
+  <label
+    class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+    for="detailed-description"
+  >
+    {{
+      regPageSetting?.reg_page_setting_detail?.[0]
+        ?.step_4_description_label
+    }}
+    <span class="text-red-500">*</span>
+  </label>
+  <textarea
+    rows="6"
+    class="can-exp-input"
+    :placeholder="
+      regPageSetting?.reg_page_setting_detail?.[0]
+        ?.step_4_description_placeholder
+    "
+    @input="
+      handleInput($event.target.value, 'customer_profile_description');
+      clearValidationError('customer_profile_description');
+      restrictToLength($event, 300, 'detailed')
+    "
+    :value="
+      form && form.has('customer_profile_description')
+        ? form.get('customer_profile_description')
+        : ''
+    "
+    id="customer_profile_description"
+  ></textarea>
+  <Error
+    fieldName="customer_profile_description"
+    :validationErros="validationErros"
+  />
+</div>
+
+<!-- <div class="relative w-full mb-3">
+  <label
+    class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+    for="keywords"
+  >
+    {{
+      regPageSetting?.reg_page_setting_detail?.[0]
+        ?.step_4_keywords_label
+    }}
+    <span class="text-red-500">*</span>
+  </label>
+  <textarea
+    rows="3"
+    class="can-exp-input"
+    :placeholder="
+      regPageSetting?.reg_page_setting_detail?.[0]
+        ?.step_4_keywords_placeholder
+    "
+    @input="
+      handleInput($event.target.value, 'customer_profile_keywords');
+      clearValidationError('customer_profile_keywords');
+    "
+    :value="
+      form && form.has('customer_profile_keywords')
+        ? form.get('customer_profile_keywords')
+        : ''
+    "
+    id="customer_profile_keywords"
+  ></textarea>
+  <Error
+    fieldName="customer_profile_keywords"
+    :validationErros="validationErros"
+  />
+</div> -->
+
+        <div class="relative w-full mb-3">
+  <label
+    class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+    for="keywords"
+  >
+    {{
+      regPageSetting?.reg_page_setting_detail?.[0]
+        ?.step_4_keywords_label
+    }}
+    <span class="text-red-500">*</span>
+  </label>
+  <textarea
+  rows="3"
+  class="can-exp-input"
+  :placeholder="
+    regPageSetting?.reg_page_setting_detail?.[0]
+      ?.step_4_keywords_placeholder
+  "
+  @input="
+    handleInput($event.target.value, 'customer_profile_keywords');
+    clearValidationError('customer_profile_keywords');
+    restrictToKeywords($event);
+  "
+  :value="
+    form && form.has('customer_profile_keywords')
+      ? form.get('customer_profile_keywords')
+      : ''
+  "
+  id="customer_profile_keywords"
+  ></textarea>
+  <Error
+    fieldName="customer_profile_keywords"
+    :validationErros="validationErros"
+  />
+</div>
+        <!-- <div class="mt-10 flex justify-center" v-if="profile == '1'">
+                    <button aria-label="Candian Exporters" type="button" @click="updateBussinessProfile()" class="button-exp-fill">
+                        {{ general_setting && general_setting['process_button_text'] ? general_setting['process_button_text'] : ''}}
+                    </button>
+                </div> -->
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapState } from "vuex";
+import Error from "./../components/Error.vue";
+
+export default {
+  components: {
+    Error,
+  },
+  data() {
+    return {
+      general_setting: null,
+    };
+  },
+  computed: {
+    ...mapState({
+      form: (state) => state.signup.form,
+      regPageSetting: (state) => state.signup.regPageSetting,
+      validationErros: (state) => state.signup.validationErros,
+      package_type: (state) => state.signup.package_type,
+    }),
+  },
+  created() {
+  if (this.profile == "1") {
+    let user = JSON.parse(this.user);
+
+    this.updateForm(
+      "customer_profile_address",
+      user?.customer_profile?.address || ""
+    );
+    this.updateForm(
+      "customer_profile_company_email",
+      user?.customer_profile?.company_email || ""
+    );
+    this.updateForm(
+      "customer_profile_company_name",
+      user?.customer_profile?.company_name || ""
+    );
+    this.updateForm(
+      "customer_profile_description",
+      user?.customer_profile?.description || ""
+    );
+    this.updateForm(
+      "customer_profile_keywords",
+      user?.customer_profile?.keywords || ""
+    );
+    this.updateForm(
+      "customer_profile_phone",
+      user?.customer_profile?.phone || ""
+    );
+    this.updateForm(
+      "customer_profile_short_description",
+      user?.customer_profile?.short_description || ""
+    );
+    this.updateForm(
+      "customer_profile_website",
+      user?.customer_profile?.website || ""
+    );
+    this.updateForm(
+      "customer_profile_cta_link",
+      user?.customer_profile?.cta_link || ""
+    );
+    this.updateForm(
+      "customer_profile_cta_btn",
+      user?.customer_profile?.cta_btn || ""
+    );
+  }
+
+  // Retrieve form data from localStorage
+  const savedFormData = JSON.parse(localStorage.getItem("formData")) || {};
+  for (const [field, value] of Object.entries(savedFormData)) {
+    this.updateForm(field, value);
+  }
+},
+  methods: {
+    restrictToKeywords(event, maxKeywords = 5, maxWordsPerKeyword = 10) {
+  let inputValue = event.target.value;
+
+  // Split by comma while preserving spaces inside keywords
+  let keywordsArray = inputValue.split(/\s*,\s*/).filter(kw => kw.trim() !== "");
+
+  // **Prevent typing more than maxKeywords (5 keywords)**
+  if (keywordsArray.length > maxKeywords) {
+    event.target.value = keywordsArray.slice(0, maxKeywords).join(", ");
+    return;
+  }
+
+  let lastKeyword = keywordsArray[keywordsArray.length - 1] || "";
+  let wordsArray = lastKeyword.split(/\s+/); // Split last keyword into words
+
+  // **If the last keyword exceeds maxWordsPerKeyword (10 words), automatically add a comma**
+  if (wordsArray.length > maxWordsPerKeyword) {
+    wordsArray = wordsArray.slice(0, maxWordsPerKeyword);
+    keywordsArray[keywordsArray.length - 1] = wordsArray.join(" "); // Keep only the first 10 words
+
+    // **Auto-add a comma and space for the next keyword**
+    event.target.value = keywordsArray.join(", ") + ", ";
+
+    // Move cursor to the end of the input
+    setTimeout(() => {
+      event.target.selectionStart = event.target.selectionEnd = event.target.value.length;
+    }, 0);
+
+    return;
+  }
+
+  // Update form value
+  this.updateForm("customer_profile_keywords", event.target.value);
+},
+
+
+//     restrictToLength(event, maxLength, field) {
+//     // Get the current input value
+//     const currentValue = event.target.value;
+//     const wordsArray = currentValue.split(/\s+/); // Split input into words
+
+//     // If the length exceeds the allowed max length, truncate it
+//     if (wordsArray.length > maxLength) {
+//       wordsArray.length = maxLength;
+//       event.target.value = wordsArray.join(' '); // Rejoin the words
+//     }
+
+//     // Update the form with the new truncated value
+//     this.updateForm(field, event.target.value);
+//   },
+
+restrictToLength(event, maxWords, fieldName) {
+    const inputElement = event.target;
+    let val = inputElement.value.trim();
+    let words = val.split(/\s+/);
+
+    // **If max words are reached**
+    if (words.length > maxWords) {
+      // **Limit words and prevent extra input**
+      const truncatedText = words.slice(0, maxWords).join(" ") + " ";
+
+      // **Prevent further input and update the field**
+      this.form[fieldName] = truncatedText;
+
+      setTimeout(() => {
+        inputElement.value = truncatedText;
+        inputElement.setSelectionRange(truncatedText.length, truncatedText.length);
+      }, 0);
+
+      event.preventDefault();
+    } else {
+      // **Allow normal updates within limit**
+      this.form[fieldName] = val;
+    }
+  },
+  updateForm(field, value) {
+    // Update Vuex store
+    this.$store.commit("signup/setForm", {
+      field: [field],
+      value: value,
+    });
+    this.$store.commit("signup/removeValidationErros", {
+      field: [field],
+    });
+
+    // Save form data to localStorage
+    const formData = JSON.parse(localStorage.getItem("formData")) || {};
+    formData[field] = value;
+    localStorage.setItem("formData", JSON.stringify(formData));
+  },
+    handleInput(value, fieldName) {
+      this.updateForm(fieldName, value);
+    },
+    clearValidationError(field) {
+      this.$store.commit("signup/removeValidationError", field);
+    },
+    restrictToNumbers(event, allowedLength) {
+      const keyCode = event.which ? event.which : event.keyCode;
+      const inputChar = String.fromCharCode(keyCode);
+      const valid = /^\d$|^[\+\-\(\)]$/.test(inputChar); // Check if the character is a digit, +, -, (, or )
+      const maxLengthReached = event.target.value.length >= allowedLength;
+
+      if (!valid || maxLengthReached) {
+        event.preventDefault();
+      }
+      return true;
+    },
+    updateBussinessProfile() {
+    this.$store.dispatch("signup/updateBussinessProfile")
+      .then((res) => {
+        if (res.data.status == "Success") {
+          // Clear localStorage on successful submission
+          localStorage.removeItem("formData");
+          window.location.href = res.data.data.redirect_url;
+        }
+      })
+      .catch((errors) => {
+        if (errors.response && errors.response.status == 422) {
+          this.focusOnFirstErrorInput(errors.response.data.errors);
+        }
+      });
+  },
+    checkIsEmailValid(val) {
+      if (val == "") {
+        return;
+      }
+      this.$store
+        .dispatch("signup/checkCustomerProfileEmail", {
+          customer_profile_company_email: val,
+        })
+        .then((res) => console.log(res));
+    },
+  },
+  props: ["profile", "user", "page_id"],
+};
+</script>
