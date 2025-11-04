@@ -56,7 +56,7 @@ class ContactUsController extends Controller
             }
         }
 
-        Mail::to($request->email)->queue(new AutoResponseToCustomerMail([]));
+        Mail::to($request->email)->send(new AutoResponseToCustomerMail([]));
 
         ContactForm::create([
             'email_sent_by' => Auth::guard('customers')->check() ? Auth::guard('customers')->user()->id : null,

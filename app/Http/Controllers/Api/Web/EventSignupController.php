@@ -307,7 +307,7 @@ class EventSignupController extends Controller
                 }
             }
 
-            Mail::to($request->email)->queue(new CustomerVerifyEmailMail($data));
+            Mail::to($request->email)->send(new CustomerVerifyEmailMail($data));
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
         }
@@ -524,7 +524,7 @@ class EventSignupController extends Controller
             }
 
             $data = ['customer' => $customer, 'event_name' => $event->eventDetail[0]->title, 'package_name' => isset($package->registrationPackageDetail[0]) ? $package->registrationPackageDetail[0]->name : '', 'package_price' => $price];
-            Mail::to($request->email)->queue(new WelcomeEventMail($data));
+            Mail::to($request->email)->send(new WelcomeEventMail($data));
 
             if ($totalAmount > 0) {
                 $order = Order::create([
@@ -550,7 +550,7 @@ class EventSignupController extends Controller
 
                 $PDFService->createRegistrationInvoicePDF(null, $data);
 
-                Mail::to($request->email)->queue(new RegistrationInvoiceToCustomerMail($data));
+                Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
             } else {
                 $order = Order::create([
                     'registration_package_id' => $package->id,
@@ -571,7 +571,7 @@ class EventSignupController extends Controller
 
                 $PDFService->createRegistrationInvoicePDF(null, $data);
 
-                Mail::to($request->email)->queue(new RegistrationInvoiceToCustomerMail($data));
+                Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
             }
             
             Log::info('===== Event Signup Payment Completed Successfully =====');

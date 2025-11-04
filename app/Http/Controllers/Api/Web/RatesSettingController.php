@@ -56,7 +56,7 @@ class RatesSettingController extends Controller
             }
         }
 
-        Mail::to($request->email)->queue(new AutoResponseToCustomerMail([]));
+        Mail::to($request->email)->send(new AutoResponseToCustomerMail([]));
 
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_60']);
         $message_60 = isset($general_messages['message_60']) ? $general_messages['message_60'] : '';

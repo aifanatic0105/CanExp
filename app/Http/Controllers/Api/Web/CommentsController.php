@@ -57,8 +57,8 @@ class CommentsController extends Controller
             }
         }
 
-        // Mail::to($request->email)->queue(new CommentResponseMail([]));
-        Mail::to($request->email)->queue(new CommentResponseMail(['name' => $request->name]));
+        // Mail::to($request->email)->send(new CommentResponseMail([]));
+        Mail::to($request->email)->send(new CommentResponseMail(['name' => $request->name]));
 
 
         ContactForm::create([

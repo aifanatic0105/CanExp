@@ -282,7 +282,7 @@ class SignupController extends Controller
                 }
             }
             // return $request->email;
-            Mail::to($request->email)->queue(new CustomerVerifyEmailMail($data));
+            Mail::to($request->email)->send(new CustomerVerifyEmailMail($data));
 
             // if ($packagePrice <= 0) {
 
@@ -512,7 +512,7 @@ class SignupController extends Controller
 
 
         $data = ['token' => $token, 'lang' => $defaultLang, 'email' => $request->email, 'name' => $customer->name,];
-        Mail::to($request->email)->queue(new CustomerResetPasswordMail($data));
+        Mail::to($request->email)->send(new CustomerResetPasswordMail($data));
 
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_51']);
         $message_51 = isset($general_messages['message_51']) ? $general_messages['message_51'] : '';
@@ -701,7 +701,7 @@ class SignupController extends Controller
             ];
 
             // Send email to the customer
-            Mail::to($customer->email)->queue(new CloseAccountMail($emailData));
+            Mail::to($customer->email)->send(new CloseAccountMail($emailData));
 
             // Send email to the admin
             $general_setting = getGeneralSettingByKey();
@@ -859,7 +859,7 @@ class SignupController extends Controller
         $data['email'] = $customer->email;
 
 
-        Mail::to($customer->email)->queue(new CustomerVerifyEmailMail($data));
+        Mail::to($customer->email)->send(new CustomerVerifyEmailMail($data));
 
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_52']);
         $message_52 = isset($general_messages['message_52']) ? $general_messages['message_52'] : '';
@@ -895,7 +895,7 @@ class SignupController extends Controller
         $data['email'] = $customer->email;
 
 
-        Mail::to($customer->email)->queue(new CustomerReactiveEmailMail($data));
+        Mail::to($customer->email)->send(new CustomerReactiveEmailMail($data));
 
         return $this->successResponse("We have sent you an email to reactive your account.");
     }

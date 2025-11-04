@@ -158,8 +158,8 @@ class SuccessStoriesSettingController extends Controller
             }
         }
 
-        // Send auto-response to the customer
-        Mail::to($request->email)->queue(new AutoResponseToCustomerMail([]));
+    // Send auto-response to the customer
+    Mail::to($request->email)->send(new AutoResponseToCustomerMail([]));
 
         // Get success message from translations
         $general_messages = getStaticTranslationByKey($defaultLang, 'general_messages', ['message_58']);

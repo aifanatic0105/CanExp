@@ -107,7 +107,7 @@ class BusinessProfileStatsController extends Controller
 
     if ($customerProfile && $customerProfile->company_email) {
         // Send the email to the company's email address
-        Mail::to($customerProfile->company_email)->queue(new VisitorInfoMail($stats, $statsSummary));
+        Mail::to($customerProfile->company_email)->send(new VisitorInfoMail($stats, $statsSummary));
 
         return response()->json([
             'status' => 'Success',

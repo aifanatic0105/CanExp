@@ -60,7 +60,7 @@ class ContactForRateController extends Controller
             }
         }
 
-        Mail::to($request->email)->queue(new AutoResponseToCustomerMail([]));
+        Mail::to($request->email)->send(new AutoResponseToCustomerMail([]));
 
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_54']);
         $message_54 = isset($general_messages['message_54']) ? $general_messages['message_54'] : '';

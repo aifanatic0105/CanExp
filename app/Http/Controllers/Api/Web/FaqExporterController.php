@@ -56,7 +56,7 @@ class FaqExporterController extends Controller
             }
         }
 
-        Mail::to($request->email)->queue(new AutoResponseToCustomerMail([]));
+        Mail::to($request->email)->send(new AutoResponseToCustomerMail([]));
 
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_57']);
         $message_57 = isset($general_messages['message_57']) ? $general_messages['message_57'] : '';

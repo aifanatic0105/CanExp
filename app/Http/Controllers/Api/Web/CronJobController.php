@@ -144,7 +144,7 @@ class CronJobController extends Controller
 
             foreach ($chunks as $batch) {
                 foreach ($batch as $email) {
-                    Mail::to($email)->queue(new HolidayMail($data));
+                    Mail::to($email)->send(new HolidayMail($data));
                 }
                 sleep(1);
             }
@@ -172,7 +172,7 @@ class CronJobController extends Controller
             $data['customer'] = $customer;
             $data['package'] = $package;
             $data['login_url'] = url(langBasedURL(null, $general_setting['user_signin_page']));
-            Mail::to($customer->email)->queue(new CustomerMembershipExpiryMail($data));
+            Mail::to($customer->email)->send(new CustomerMembershipExpiryMail($data));
 
             $customer->update([
                 'first_pkg_expiry_mail' => 1
@@ -210,7 +210,7 @@ class CronJobController extends Controller
             $data['customer'] = $customer;
             $data['package'] = $package;
             $data['login_url'] = url(langBasedURL(null, $general_setting['user_signin_page']));
-            Mail::to($customer->email)->queue(new CustomerMembershipExpiryMail($data));
+            Mail::to($customer->email)->send(new CustomerMembershipExpiryMail($data));
 
             $customer->update([
                 'second_pkg_expiry_mail' => 1
@@ -248,7 +248,7 @@ class CronJobController extends Controller
             $data['customer'] = $customer;
             $data['package'] = $package;
             $data['login_url'] = url(langBasedURL(null, $general_setting['user_signin_page']));
-            Mail::to($customer->email)->queue(new CustomerMembershipExpiryMail($data));
+            Mail::to($customer->email)->send(new CustomerMembershipExpiryMail($data));
 
             $customer->update([
                 'third_pkg_expiry_mail' => 1
@@ -280,7 +280,7 @@ class CronJobController extends Controller
         $data = [];
         foreach ($infoLetters as $key => $infoLetter) {
             $data['subscribe_hash'] = $infoLetter->subscribe_hash ?? null;
-            Mail::to($infoLetter->email)->queue(new AutoInfoLetterToCustomerMail($data));
+            Mail::to($infoLetter->email)->send(new AutoInfoLetterToCustomerMail($data));
         }
     }
 }

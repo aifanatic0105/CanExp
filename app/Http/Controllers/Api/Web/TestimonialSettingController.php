@@ -152,7 +152,7 @@ class TestimonialSettingController extends Controller
     }
 
     // Send auto-response to the customer
-    Mail::to($request->email)->queue(new AutoResponseToCustomerMail([]));
+    Mail::to($request->email)->send(new AutoResponseToCustomerMail([]));
 
     // Get success message from translations
     $general_messages = getStaticTranslationByKey($defaultLang, 'general_messages', ['message_59']);

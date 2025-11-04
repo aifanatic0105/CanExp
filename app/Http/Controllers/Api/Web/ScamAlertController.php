@@ -56,7 +56,7 @@ class ScamAlertController extends Controller
             }
         }
 
-        Mail::to($request->email)->queue(new AutoResponseToCustomerMail([]));
+        Mail::to($request->email)->send(new AutoResponseToCustomerMail([]));
 
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_55']);
         $message_55 = isset($general_messages['message_55']) ? $general_messages['message_55'] : '';

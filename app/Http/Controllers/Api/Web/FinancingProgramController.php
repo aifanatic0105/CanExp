@@ -127,7 +127,7 @@ public function sendMessage(Request $request)
     }
 
     // Send auto-response email to the customer
-    Mail::to($request->email)->queue(new FinancingProgramResponseMail([]));
+    Mail::to($request->email)->send(new FinancingProgramResponseMail([]));
 
     // Get the success message from translations
     $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_49']);

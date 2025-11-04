@@ -78,7 +78,7 @@ class InfoLetterController extends Controller
             }
         }
 
-        Mail::to($request->email)->queue(new InfoLetterSubscriptionMail($data));
+        Mail::to($request->email)->send(new InfoLetterSubscriptionMail($data));
 
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_45']);
         $message_45 = isset($general_messages['message_45']) ? $general_messages['message_45'] : '';

@@ -142,7 +142,7 @@ class BusinessCategoryController extends Controller
             $customer = Auth::guard('customers')->check() ? Auth::guard('customers')->user() : null;
 
             if ($customer) {
-                Mail::to($customer->email)->queue(new SendCopyToUserMail($customerProfile, $data));
+                Mail::to($customer->email)->send(new SendCopyToUserMail($customerProfile, $data));
             }
         }
 
@@ -152,7 +152,7 @@ class BusinessCategoryController extends Controller
             Mail::to($customerProfile->company_email)->queue(new ContactCompanyMail($data, $customerProfile->company_name));
         }
         // Email to customer
-        Mail::to($request->email)->queue(
+        Mail::to($request->email)->send(
             new AdvertisterEmailToCustomerMail($customerProfile, $data)
         );
 
