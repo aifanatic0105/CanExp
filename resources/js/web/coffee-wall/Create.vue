@@ -117,7 +117,7 @@
         </div>
             <div class="bg-white rounded-lg overflow-hidden shadow-3xl my-6">
                 <div
-                    class="px-4 py-1.5 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md cursor-pointer">
+                    class="px-4 py-1.5 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md">
                     <h4 class="text-white">
                         <!-- Please select amount and frequency * -->
                         {{ JSON.parse(coffee_wall_setting)["select_amount_label"] ?? 'Please select your amount and frequency *' }}
@@ -254,9 +254,9 @@
             </div>
             <div class="bg-white rounded-lg overflow-hidden shadow-3xl my-6">
                 <div
-                    class="px-4 py-1.5 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md cursor-pointer">
+                    class="px-4 py-1.5 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md">
                     <h4 class="text-white">
-                        {{ JSON.parse(coffee_wall_setting)["beneficiary_head_text"] ?? 'Beneficiary' }}
+                        {{ JSON.parse(coffee_wall_setting)["beneficiary_head_text"] ?? 'Beneficiary *' }}
                     </h4>
                 </div>
                 <div class="p-4">
@@ -280,28 +280,18 @@
             </div>  
             <div class="bg-white rounded-lg overflow-hidden shadow-3xl my-6">
                 <div
-                    class="px-4 py-1.5 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md cursor-pointer">
+                    class="px-4 py-1.5 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md">
                     <h4 class="text-white">
                         {{ JSON.parse(coffee_wall_setting)["contact_info_head_text"] ?? 'Your conact information' }}
                     </h4>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="flex items-center space-x-1 relative w-full pl-4 pt-4">
-                        <input @input="clearErrors('anonymous')" type="checkbox" class="" placeholder="" name="anonymous"
-                            id="anonymous" v-model="form.anonymous" />
-                        <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="anonymous">{{
-                            JSON.parse(coffee_wall_setting)["anonymous_label"] ?? 'Make donation anonymous' }}
-                        </label>
-                        <Error v-if="submitted" fieldName="anonymous" :validationErros="validationErros" full_width="1" />
-                    </div>
-                    <div class="flex items-center space-x-1 relative w-full pt-4">
-                        <input @input="clearErrors('notify_when_used')" type="checkbox" class="" placeholder="" name="notify_when_used"
-                            id="notify_when_used" v-model="form.notify_when_used" />
-                        <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="notify_when_used">
-                            Notify me when my Coffee is used
-                        </label>
-                        <Error v-if="submitted" fieldName="notify_when_used" :validationErros="validationErros" full_width="1" />
-                    </div>
+                <div class="flex items-center space-x-1 relative w-full px-4 pt-4 gap-1">
+                    <input @input="clearErrors('anonymous')" type="checkbox" class="" placeholder="" name="anonymous"
+                        id="anonymous" v-model="form.anonymous" />
+                    <label class="block text-gray-900 text-base md:text-base lg:text-lg ml-2 fong-semibold" for="anonymous">{{
+                        JSON.parse(coffee_wall_setting)["anonymous_label"] ?? 'Make donation anonymous' }}
+                    </label>
+                    <Error v-if="submitted" fieldName="anonymous" :validationErros="validationErros" full_width="1" />
                 </div>
                 <div v-if="!form.anonymous" class="p-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -332,13 +322,21 @@
                             name="phone" id="phone" v-model="form.phone" />
                         <Error v-if="submitted" fieldName="phone" :validationErros="validationErros" full_width="1" />
                     </div>
+                    <div class="flex items-center space-x-1 relative w-full pt-4 gap-1">
+                        <input @input="clearErrors('notify_when_used')" type="checkbox" class="" placeholder="" name="notify_when_used"
+                            id="notify_when_used" v-model="form.notify_when_used" />
+                        <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="notify_when_used">
+                            Notify me when my Coffee is used
+                        </label>
+                        <Error v-if="submitted" fieldName="notify_when_used" :validationErros="validationErros" full_width="1" />
+                    </div>
                 </div>
             </div>
             <div class="bg-white rounded-lg overflow-hidden shadow-3xl my-6">
                 <div
-                    class="px-4 py-1.5 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md cursor-pointer">
+                    class="px-4 py-1.5 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md">
                     <h4 class="text-white">
-                        {{ payment_setting && JSON.parse(payment_setting) ? (JSON.parse(payment_setting)["select_payment_method"] ?? 'Select Payment Method') : 'Select Payment Method' }}
+                        {{ payment_setting && JSON.parse(payment_setting) ? (JSON.parse(payment_setting)["select_payment_method"] ?? 'Select Payment Method *') : 'Select Payment Method *' }}
                     </h4>
                 </div>
                 <div class="p-4">
@@ -435,13 +433,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex items-start space-x-2 relative w-full mt-3">
+                                <!-- <div class="flex items-start space-x-2 relative w-full mt-3">
                                     <input @input="clearErrors('agree_terms')" type="checkbox" class="mt-1" value="1"
                                         placeholder="" name="agree_terms" id="agree_terms" v-model="form.agree_terms" />
                                     <label class="block text-gray-900 text-base md:text-base lg:text-lg"
                                         for="agree_terms">{{ JSON.parse(coffee_wall_setting)["agree_terms_label"] ?? 'By clicking' }}
                                     </label>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                         <Error v-if="submitted" fieldName="agree_terms" :validationErros="validationErros" full_width="1" />
@@ -453,8 +451,42 @@
                     <Error v-if="submitted" fieldName="captcha" :validationErros="validationErros" full_width="1" />
                 </div>
             </div>
+
+            <!-- Disclaimer Checkboxes -->
+            <div class="px-4 space-y-4">
+                <!-- Non-refundable Donation Disclaimer -->
+                <div class="flex items-start space-x-2">
+                    <input 
+                        @input="clearErrors('non_refundable_agreement')" 
+                        type="checkbox" 
+                        class="mt-1" 
+                        name="non_refundable_agreement" 
+                        id="non_refundable_agreement" 
+                        v-model="form.non_refundable_agreement" 
+                    />
+                    <label class="block text-gray-900 text-sm md:text-base" for="non_refundable_agreement">
+                        I understand that my contribution is a voluntary act of kindness. As such, it is considered a donation and is non-refundable.
+                    </label>
+                </div>
+                <Error v-if="submitted" fieldName="non_refundable_agreement" :validationErros="validationErros" full_width="1" />
+
+                <!-- Terms and Conditions & Privacy Policy Agreement -->
+                <div class="flex items-start space-x-2">
+                    <input 
+                        @input="clearErrors('terms_privacy_agreement')" 
+                        type="checkbox" 
+                        class="mt-1" 
+                        name="terms_privacy_agreement" 
+                        id="terms_privacy_agreement" 
+                        v-model="form.terms_privacy_agreement" 
+                    />
+                    <p>By clicking "<strong>Make Someone's Day</strong>", you agree to our <a href="../../../en/terms-and-conditions" target="_blank" rel="noopener">Terms and Conditions</a>&nbsp;and&nbsp;<a href="../../../en/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a></p>
+                </div>
+                <Error v-if="submitted" fieldName="terms_privacy_agreement" :validationErros="validationErros" full_width="1" />
+            </div>
+
             <!-- <ListErrors :validationErrors="validationErros" /> -->
-            <div class="flex justify-center items-center px-4">
+            <div class="flex justify-center items-center px-4 mt-6">
                 <button aria-label="Candian Exporters" class="button-exp-fill button-exp-fill w-full sm:w-40 md:w-48 lg:w-56" type="submit"
                     id="send-message">
                     {{ JSON.parse(coffee_wall_setting)["pay_label"] ?? 'Pay' }}
@@ -533,6 +565,8 @@ export default {
                 anonymous: false,
                 notify_when_used: false,
                 agree_terms: "",
+                non_refundable_agreement: false,
+                terms_privacy_agreement: false,
             },
             freePackage: [],
             featuredPackage: [],

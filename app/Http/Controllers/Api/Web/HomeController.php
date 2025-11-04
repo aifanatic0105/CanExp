@@ -76,6 +76,8 @@ class HomeController extends Controller
             'package_id' => $request->custom_amount ? 'nullable' : 'required|exists:coffee_wall_packages,id',
             'beneficiary_id' => 'required|exists:coffee_wall_beneficiaries,id',
             'agree_terms' => 'required',
+            'non_refundable_agreement' => 'required|accepted',
+            'terms_privacy_agreement' => 'required|accepted',
         ];
         
         Log::info('Validation Rules:', $validationRule);
@@ -93,6 +95,8 @@ class HomeController extends Controller
                 'beneficiary_id' => isset($coffee_wall_setting['beneficiary_error']) ? $coffee_wall_setting['beneficiary_error'] : 'Please select a beneficiary',
                 'agree_terms' => isset($coffee_wall_setting['agree_terms_error']) ? $coffee_wall_setting['agree_terms_error'] : '',
                 'card_holder_name' => isset($payment_setting['cardholder_name_error']) ? $payment_setting['cardholder_name_error'] : '',
+                'non_refundable_agreement' => 'You must agree that your contribution is non-refundable',
+                'terms_privacy_agreement' => 'You must agree to the Terms and Conditions and Privacy Policy',
             ];
         }
 
