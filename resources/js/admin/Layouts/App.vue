@@ -398,7 +398,7 @@ export default {
               name: "Export Fairs",
               href: this.route("admin.exporting-fairs.index"),
             },
-            { name: "FAQs", href: this.route("admin.faqs.index") },
+            { name: "Coffee Wall FAQs", href: this.route("admin.coffee_wall_faqs.index") },
             {
               name: "Financing Program",
               href: this.route("admin.financingPrograms.index"),
