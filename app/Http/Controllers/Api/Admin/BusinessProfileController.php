@@ -526,7 +526,7 @@ class BusinessProfileController extends Controller
 
         $data = ['token' => $token, 'lang' => $defaultLang, 'email' => $customer->email, 'name' => $customer->name, 'reset_password' => 1];
 
-        Mail::to($customer->email)->queue(new CustomerResetPasswordMail($data));
+        Mail::to($customer->email)->send(new CustomerResetPasswordMail($data));
 
         return $this->successResponse([], 'Password reset email has been sent successfully.');
     }

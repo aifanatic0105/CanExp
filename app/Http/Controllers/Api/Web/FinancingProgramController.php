@@ -118,11 +118,11 @@ public function sendMessage(Request $request)
     if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
         $to_email = $adminEmailsArr[0];
         unset($adminEmailsArr[0]);
-        Mail::to($to_email)->cc($adminEmailsArr)->queue(new FinancingProgramMail($data, $data['primary_industry']));
+        Mail::to($to_email)->cc($adminEmailsArr)->send(new FinancingProgramMail($data, $data['primary_industry']));
     } else {
         $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
         if ($to_email) {
-            Mail::to($to_email)->queue(new FinancingProgramMail($data, $data['primary_industry']));
+            Mail::to($to_email)->send(new FinancingProgramMail($data, $data['primary_industry']));
         }
     }
 

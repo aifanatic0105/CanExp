@@ -79,15 +79,15 @@ class BecomeSponsorController extends Controller
         if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
             $to_email = $adminEmailsArr[0];
             unset($adminEmailsArr[0]);
-            Mail::to($to_email)->cc($adminEmailsArr)->queue(new BecomeSponsorMail($data));
+            Mail::to($to_email)->cc($adminEmailsArr)->send(new BecomeSponsorMail($data));
         } else {
             $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
             if ($to_email) {
-                Mail::to($to_email)->queue(new BecomeSponsorMail($data));
+                Mail::to($to_email)->send(new BecomeSponsorMail($data));
             }
         }
 
-        Mail::to($request->email)->queue(new BecomeSponsorResponseMail([
+        Mail::to($request->email)->send(new BecomeSponsorResponseMail([
             'name' => $data['name']
         ]));
 
@@ -397,23 +397,23 @@ class BecomeSponsorController extends Controller
                 
                 if ($talkToUsFirst) {
                     // Send "Talk to Us" notification
-                    Mail::to($adminEmailsArr)->queue(new SponsorContactRequestNotification($sponsor));
+                    Mail::to($adminEmailsArr)->send(new SponsorContactRequestNotification($sponsor));
                 } elseif ($paymentStatus === 'paid') {
                     // Send payment success notification
-                    Mail::to($adminEmailsArr)->queue(new NewSponsorPaymentNotification($sponsor));
+                    Mail::to($adminEmailsArr)->send(new NewSponsorPaymentNotification($sponsor));
                 }
             }
 
             // Send welcome email to sponsor if new account (no password needed - they set it themselves)
             if ($sendWelcomeEmail && $customer) {
                 // You can send a welcome email here if needed
-                // Mail::to($request->email)->queue(new SponsorWelcomeMail([
+                // Mail::to($request->email)->send(new SponsorWelcomeMail([
                 //     'name' => $request->contact_name
                 // ]));
             }
 
             // Send auto-response to customer
-            Mail::to($request->email)->queue(new BecomeSponsorResponseMail([
+            Mail::to($request->email)->send(new BecomeSponsorResponseMail([
                 'name' => $request->contact_name
             ]));
 

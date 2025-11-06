@@ -227,7 +227,7 @@ class EmailSubscriptionService
 
         try {
             if ($queue) {
-                Mail::to($email)->queue($mailable);
+                Mail::to($email)->send($mailable);
             } else {
                 Mail::to($email)->send($mailable);
             }
@@ -262,7 +262,7 @@ class EmailSubscriptionService
 
             try {
                 if ($queue) {
-                    Mail::to($email)->queue(clone $mailable);
+                    Mail::to($email)->send(clone $mailable);
                 } else {
                     Mail::to($email)->send(clone $mailable);
                 }

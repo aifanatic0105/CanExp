@@ -274,11 +274,11 @@ class SignupController extends Controller
             if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
                 $to_email = $adminEmailsArr[0];
                 unset($adminEmailsArr[0]);
-                Mail::to($to_email)->cc($adminEmailsArr)->queue(new NewCustomerAdminMail($data));
+                Mail::to($to_email)->cc($adminEmailsArr)->send(new NewCustomerAdminMail($data));
             } else {
                 $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
                 if ($to_email) {
-                    Mail::to($to_email)->queue(new NewCustomerAdminMail($data));
+                    Mail::to($to_email)->send(new NewCustomerAdminMail($data));
                 }
             }
             // return $request->email;
@@ -566,13 +566,13 @@ class SignupController extends Controller
     //         'email' => $request->email,
     //         'name' => $customer->name,
     //     ];
-    //     Mail::to($request->email)->queue(new CustomerResetPasswordMail($data));
+    //     Mail::to($request->email)->send(new CustomerResetPasswordMail($data));
 
     //     // Send Confirmation Email for Successful Reset
     //     $confirmationEmailData = [
     //         'name' => $customer->name,
     //     ];
-    //     Mail::to($request->email)->queue(new CustomerPasswordResetSuccessMail($confirmationEmailData));
+    //     Mail::to($request->email)->send(new CustomerPasswordResetSuccessMail($confirmationEmailData));
 
     //     $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_51']);
     //     $message_51 = isset($general_messages['message_51']) ? $general_messages['message_51'] : '';
@@ -712,11 +712,11 @@ class SignupController extends Controller
             if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
                 $to_email = $adminEmailsArr[0];
                 unset($adminEmailsArr[0]);
-                Mail::to($to_email)->cc($adminEmailsArr)->queue(new AdminCloseAccountMail($emailData));
+                Mail::to($to_email)->cc($adminEmailsArr)->send(new AdminCloseAccountMail($emailData));
             } else {
                 $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
                 if ($to_email) {
-                    Mail::to($to_email)->queue(new AdminCloseAccountMail($emailData));
+                    Mail::to($to_email)->send(new AdminCloseAccountMail($emailData));
                 }
             }
 

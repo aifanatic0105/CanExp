@@ -147,9 +147,9 @@ class BusinessCategoryController extends Controller
         }
 
         if (isset($adminEmailsArr)) {
-            Mail::to($customerProfile->company_email)->cc($adminEmailsArr)->queue(new ContactCompanyMail($data, $customerProfile->company_name));
+            Mail::to($customerProfile->company_email)->cc($adminEmailsArr)->send(new ContactCompanyMail($data, $customerProfile->company_name));
         } else {
-            Mail::to($customerProfile->company_email)->queue(new ContactCompanyMail($data, $customerProfile->company_name));
+            Mail::to($customerProfile->company_email)->send(new ContactCompanyMail($data, $customerProfile->company_name));
         }
         // Email to customer
         Mail::to($request->email)->send(

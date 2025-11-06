@@ -35,14 +35,14 @@ class SponsorController extends Controller
         if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
             $to_email = $adminEmailsArr[0];
             unset($adminEmailsArr[0]);
-            Mail::to($to_email)->cc($adminEmailsArr)->queue(new SponsorMail($data));
+            Mail::to($to_email)->cc($adminEmailsArr)->send(new SponsorMail($data));
         } else {
             $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
             if ($to_email) {
-                Mail::to($to_email)->queue(new SponsorMail($data));
+                Mail::to($to_email)->send(new SponsorMail($data));
             }
         }
-        Mail::to($request->email)->queue(new AutoResponseToCustomerMail([]));
+        Mail::to($request->email)->send(new AutoResponseToCustomerMail([]));
 
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_16']);
         $message_16 = isset($general_messages['message_16']) ? $general_messages['message_16'] : '';
