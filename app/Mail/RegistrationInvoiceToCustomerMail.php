@@ -9,13 +9,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Services\EmailTemplateService;
-use App\Traits\RateLimitedMailable;
 
-class RegistrationInvoiceToCustomerMail extends Mailable implements ShouldQueue
+class RegistrationInvoiceToCustomerMail extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
-    
-    public $emailDelay = 3; // seconds
+    use Queueable, SerializesModels;
     
     private $data = [];
     /**
@@ -26,7 +23,6 @@ class RegistrationInvoiceToCustomerMail extends Mailable implements ShouldQueue
     public function __construct(array $data)
     {
         $this->data = $data;
-        $this->applyRateLimit();
     }
 
     /**

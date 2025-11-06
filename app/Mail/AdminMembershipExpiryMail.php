@@ -7,13 +7,10 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\EmailTemplateService;
-use App\Traits\RateLimitedMailable;
 
-class AdminMembershipExpiryMail extends Mailable implements ShouldQueue
+class AdminMembershipExpiryMail extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
-    
-    public $emailDelay = 3; // seconds
+    use Queueable, SerializesModels;
     
     private $data = [];
     /**
@@ -24,7 +21,6 @@ class AdminMembershipExpiryMail extends Mailable implements ShouldQueue
     public function __construct(array $data)
     {
         $this->data = $data;
-        $this->applyRateLimit();
     }
 
     /**

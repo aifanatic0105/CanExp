@@ -6,7 +6,7 @@ namespace App\Traits;
  * Trait for Mailable classes that need rate limiting (e.g., for Mailtrap free tier)
  * 
  * Usage:
- *   class YourMail extends Mailable implements ShouldQueue
+ *   class YourMail extends Mailable
  *   {
  *       use Queueable, SerializesModels, RateLimitedMailable;
  *   
@@ -40,11 +40,17 @@ trait RateLimitedMailable
      * Call this in your constructor: $this->applyRateLimit();
      * 
      * @param int $seconds Delay in seconds (uses $emailDelay property if not provided)
+     * 
+     * NOTE: Disabled for paid email accounts - emails will be sent immediately
      */
     protected function applyRateLimit($seconds = null)
     {
-        $delay = $seconds ?? $this->emailDelay ?? 3;
-        $this->delay(now()->addSeconds($delay));
+        // Disabled - no longer needed with paid email account
+        // Emails will now be sent immediately without delays
+        // 
+        // Previous implementation (for free email accounts):
+        // $delay = $seconds ?? $this->emailDelay ?? 3;
+        // $this->delay(now()->addSeconds($delay));
     }
 }
 

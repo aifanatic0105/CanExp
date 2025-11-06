@@ -10,13 +10,10 @@ use App\Services\EmailTemplateService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Lottery;
 use Illuminate\Queue\Middleware\RateLimited;
-use App\Traits\RateLimitedMailable;
 
-class CustomerVerifyEmailMail extends Mailable implements ShouldQueue
+class CustomerVerifyEmailMail extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
-    
-    public $emailDelay = 10; // seconds
+    use Queueable, SerializesModels;
     
     private $data = [];
     /**
@@ -27,7 +24,6 @@ class CustomerVerifyEmailMail extends Mailable implements ShouldQueue
     public function __construct(array $data)
     {
         $this->data = $data;
-        $this->applyRateLimit();
     }
 
     /**

@@ -7,20 +7,16 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\Services\EmailTemplateService;
-use App\Traits\RateLimitedMailable;
 
-class AdminCloseAccountMail extends Mailable implements ShouldQueue
+class AdminCloseAccountMail extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
+    use Queueable, SerializesModels;
 
-    public $emailDelay = 3; // seconds
-    
     public $emailData;
 
     public function __construct($emailData)
     {
         $this->emailData = $emailData;
-        $this->applyRateLimit();
     }
 
     public function build()

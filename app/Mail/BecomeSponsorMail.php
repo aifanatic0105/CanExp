@@ -7,14 +7,11 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\EmailTemplateService;
-use App\Traits\RateLimitedMailable;
 
-class BecomeSponsorMail extends Mailable implements ShouldQueue
+class BecomeSponsorMail extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
+    use Queueable, SerializesModels;
 
-    public $emailDelay = 3; // seconds
-    
     private $data = [];
 
     /**
@@ -25,7 +22,6 @@ class BecomeSponsorMail extends Mailable implements ShouldQueue
     public function __construct(array $data)
     {
         $this->data = $data;
-        $this->applyRateLimit();
     }
 
     /**

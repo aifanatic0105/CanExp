@@ -7,14 +7,11 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\Services\EmailTemplateService;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Traits\RateLimitedMailable;
 
-class InfoLetterAdminMail extends Mailable implements ShouldQueue
+class InfoLetterAdminMail extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
+    use Queueable, SerializesModels;
 
-    public $emailDelay = 3; // seconds
-    
     public $message;
     public $file;
     public $unsubscribeLink;
@@ -31,8 +28,6 @@ class InfoLetterAdminMail extends Mailable implements ShouldQueue
                 $this->unsubscribeLink = route('front.confirm-unsubscribe', ['q' => $infoLetter->subscribe_hash]);
             }
         }
-        
-        $this->applyRateLimit();
     }
 
     public function build()

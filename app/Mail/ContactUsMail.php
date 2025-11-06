@@ -9,14 +9,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\EmailTemplateService;
 use App\Services\EmailSubscriptionService;
 use App\Traits\HasUnsubscribeLink;
-use App\Traits\RateLimitedMailable;
 
-class ContactUsMail extends Mailable implements ShouldQueue
+class ContactUsMail extends Mailable
 {
-    use Queueable, SerializesModels, HasUnsubscribeLink, RateLimitedMailable;
+    use Queueable, SerializesModels, HasUnsubscribeLink;
 
-    public $emailDelay = 3; // seconds
-    
     private $data = [];
 
     /**
@@ -27,7 +24,6 @@ class ContactUsMail extends Mailable implements ShouldQueue
     public function __construct(array $data)
     {
         $this->data = $data;
-        $this->applyRateLimit();
     }
 
     /**

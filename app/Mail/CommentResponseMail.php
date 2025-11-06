@@ -7,20 +7,16 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\EmailTemplateService;
-use App\Traits\RateLimitedMailable;
 
-class CommentResponseMail extends Mailable implements ShouldQueue
+class CommentResponseMail extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
+    use Queueable, SerializesModels;
 
-    public $emailDelay = 3; // seconds
-    
     public $data;
 
     public function __construct($data)
     {
         $this->data = $data;
-        $this->applyRateLimit();
     }
 
     public function build()

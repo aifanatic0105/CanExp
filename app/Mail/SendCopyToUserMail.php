@@ -7,14 +7,11 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\EmailTemplateService;
-use App\Traits\RateLimitedMailable;
 
-class SendCopyToUserMail extends Mailable implements ShouldQueue
+class SendCopyToUserMail extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
+    use Queueable, SerializesModels;
 
-    public $emailDelay = 3; // seconds
-    
     public $customerProfile;
     public $data;
 
@@ -22,7 +19,6 @@ class SendCopyToUserMail extends Mailable implements ShouldQueue
     {
         $this->customerProfile = $customerProfile;
         $this->data = $data;
-        $this->applyRateLimit();
     }
 
     public function build()

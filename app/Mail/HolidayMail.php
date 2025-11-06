@@ -8,14 +8,11 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\EmailTemplateService;
 use App\Traits\HasUnsubscribeLink;
-use App\Traits\RateLimitedMailable;
 
-class HolidayMail extends Mailable implements ShouldQueue
+class HolidayMail extends Mailable
 {
-    use Queueable, SerializesModels, HasUnsubscribeLink, RateLimitedMailable;
+    use Queueable, SerializesModels, HasUnsubscribeLink;
 
-    public $emailDelay = 3; // seconds
-    
     private $data = [];
 
     public function __construct(array $data)
@@ -27,8 +24,6 @@ class HolidayMail extends Mailable implements ShouldQueue
         if ($customerEmail) {
             $this->withUnsubscribeLink($customerEmail, 'customer');
         }
-        
-        $this->applyRateLimit();
     }
 
     public function build()

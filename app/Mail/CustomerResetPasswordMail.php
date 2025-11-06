@@ -7,13 +7,10 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\Services\EmailTemplateService;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Traits\RateLimitedMailable;
 
-class CustomerResetPasswordMail extends Mailable implements ShouldQueue
+class CustomerResetPasswordMail extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
-    
-    public $emailDelay = 3; // seconds
+    use Queueable, SerializesModels;
     
     private $data = [];
     /**
@@ -24,7 +21,6 @@ class CustomerResetPasswordMail extends Mailable implements ShouldQueue
     public function __construct(array $data)
     {
         $this->data = $data;
-        $this->applyRateLimit();
     }
 
     /**

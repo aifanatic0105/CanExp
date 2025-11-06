@@ -7,14 +7,11 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\EmailTemplateService;
-use App\Traits\RateLimitedMailable;
 
-class EventCreationInvoiceMail extends Mailable implements ShouldQueue
+class EventCreationInvoiceMail extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
+    use Queueable, SerializesModels;
 
-    public $emailDelay = 3; // seconds
-    
     private $data = [];
     private $email_to = null;
 
@@ -27,7 +24,6 @@ class EventCreationInvoiceMail extends Mailable implements ShouldQueue
     {
         $this->data = $data;
         $this->email_to = $email_to;
-        $this->applyRateLimit();
     }
 
     /**

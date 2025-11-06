@@ -8,14 +8,11 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\Services\EmailTemplateService;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Traits\RateLimitedMailable;
 
-class NewSponsorPaymentNotification extends Mailable implements ShouldQueue
+class NewSponsorPaymentNotification extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
+    use Queueable, SerializesModels;
 
-    public $emailDelay = 3; // seconds
-    
     public $sponsor;
     public $data;
 
@@ -28,7 +25,6 @@ class NewSponsorPaymentNotification extends Mailable implements ShouldQueue
     {
         $this->sponsor = $sponsor;
         $this->data = $data;
-        $this->applyRateLimit();
     }
 
     /**

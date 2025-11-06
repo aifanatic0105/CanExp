@@ -7,14 +7,11 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\Services\EmailTemplateService;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Traits\RateLimitedMailable;
 
-class AutoInfoLetterToCustomerMail extends Mailable implements ShouldQueue
+class AutoInfoLetterToCustomerMail extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
+    use Queueable, SerializesModels;
 
-    public $emailDelay = 3; // seconds
-    
     private $data = [];
 
     /**
@@ -25,7 +22,6 @@ class AutoInfoLetterToCustomerMail extends Mailable implements ShouldQueue
     public function __construct(array $data)
     {
         $this->data = $data;
-        $this->applyRateLimit();
     }
     /**
      * Build the message.

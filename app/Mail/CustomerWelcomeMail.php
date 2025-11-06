@@ -7,12 +7,11 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\Services\EmailTemplateService;
 use App\Traits\HasUnsubscribeLink;
-use App\Traits\RateLimitedMailable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CustomerWelcomeMail extends Mailable implements ShouldQueue
+class CustomerWelcomeMail extends Mailable
 {
-    use Queueable, SerializesModels, HasUnsubscribeLink, RateLimitedMailable;
+    use Queueable, SerializesModels, HasUnsubscribeLink;
     private $data = [];
     /**
      * Create a new message instance.
@@ -22,10 +21,6 @@ class CustomerWelcomeMail extends Mailable implements ShouldQueue
     public function __construct(array $data)
     {
         $this->data = $data;
-        
-        // Apply rate limiting delay (10 seconds)
-        // This prevents "Too many emails per second" errors when sent with other emails
-        $this->applyRateLimit(10);
     }
 
     /**

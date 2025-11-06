@@ -7,14 +7,11 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\Services\EmailTemplateService;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Traits\RateLimitedMailable;
 
-class FinancingProgramMail extends Mailable implements ShouldQueue
+class FinancingProgramMail extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
+    use Queueable, SerializesModels;
 
-    public $emailDelay = 3; // seconds
-    
     private $data = [];
     private $businessCategories = [];
 
@@ -27,7 +24,6 @@ class FinancingProgramMail extends Mailable implements ShouldQueue
     {
         $this->data = $data;
         $this->businessCategories = $businessCategories;
-        $this->applyRateLimit();
     }
 
     /**

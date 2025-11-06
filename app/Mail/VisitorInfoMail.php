@@ -7,14 +7,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\Services\EmailTemplateService;
-use App\Traits\RateLimitedMailable;
 
-class VisitorInfoMail extends Mailable implements ShouldQueue
+class VisitorInfoMail extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
+    use Queueable, SerializesModels;
 
-    public $emailDelay = 3; // seconds
-    
     public $stats;
     public $statsSummary;
 
@@ -22,7 +19,6 @@ class VisitorInfoMail extends Mailable implements ShouldQueue
     {
         $this->stats = $stats;
         $this->statsSummary = $statsSummary;
-        $this->applyRateLimit();
     }
 
     public function build()

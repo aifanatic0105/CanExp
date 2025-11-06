@@ -9,13 +9,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Services\EmailTemplateService;
-use App\Traits\RateLimitedMailable;
 
-class WelcomeEventMail extends Mailable implements ShouldQueue
+class WelcomeEventMail extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
-    
-    public $emailDelay = 3; // seconds
+    use Queueable, SerializesModels;
     
     private $data = [];
     /**
@@ -26,7 +23,6 @@ class WelcomeEventMail extends Mailable implements ShouldQueue
     public function __construct(array $data)
     {
         $this->data = $data;
-        $this->applyRateLimit();
     }
 
     /**

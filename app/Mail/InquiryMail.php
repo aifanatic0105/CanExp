@@ -10,14 +10,11 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailables\Attachment;
 use App\Services\EmailTemplateService;
-use App\Traits\RateLimitedMailable;
 
-class InquiryMail extends Mailable implements ShouldQueue
+class InquiryMail extends Mailable
 {
-    use Queueable, SerializesModels, RateLimitedMailable;
+    use Queueable, SerializesModels;
 
-    public $emailDelay = 3; // seconds
-    
     private $data = [];
 
     /**
@@ -28,7 +25,6 @@ class InquiryMail extends Mailable implements ShouldQueue
     public function __construct(array $data)
     {
         $this->data = $data;
-        $this->applyRateLimit();
     }
 
     /**
