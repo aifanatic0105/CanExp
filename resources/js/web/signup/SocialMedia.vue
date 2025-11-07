@@ -20,8 +20,8 @@
         </template>
       </div>
       <div class="my-4" v-if="displaySocialMediaSection">
-        <div class="relative w-full mb-3">
-          <label class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg" for="facebook">
+        <div class="relative w-full mb-4">
+          <label class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg" for="facebook">
             {{
               regPageSetting?.reg_page_setting_detail?.[0]
                 ?.step_6_facebook_label
@@ -37,8 +37,8 @@
                 " id="customer_social_media_facebook" />
           <Error fieldName="customer_social_media_facebook" :validationErros="validationErros" />
         </div>
-        <div class="relative w-full mb-3">
-          <label class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg" for="twitter">
+        <div class="relative w-full mb-4">
+          <label class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg" for="twitter">
             {{
               regPageSetting?.reg_page_setting_detail?.[0]?.step_6_twitter_label
             }}
@@ -53,8 +53,8 @@
                 " id="customer_social_media_twitter" />
           <Error fieldName="customer_social_media_twitter" :validationErros="validationErros" />
         </div>
-        <div class="relative w-full mb-3">
-          <label class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg" for="youtube">
+        <div class="relative w-full mb-4">
+          <label class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg" for="youtube">
             {{
               regPageSetting?.reg_page_setting_detail?.[0]?.step_6_youtube_label
             }}
@@ -69,8 +69,8 @@
                 " id="customer_social_media_youtube" />
           <Error fieldName="customer_social_media_youtube" :validationErros="validationErros" />
         </div>
-        <div class="relative w-full mb-3">
-          <label class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg" for="linkedin">
+        <div class="relative w-full mb-4">
+          <label class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg" for="linkedin">
             {{
               regPageSetting?.reg_page_setting_detail?.[0]
                 ?.step_6_linkedin_label
@@ -86,8 +86,8 @@
                 " id="customer_social_media_linked_in" />
           <Error fieldName="customer_social_media_linked_in" :validationErros="validationErros" />
         </div>
-        <div class="relative w-full mb-3">
-          <label class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg" for="linkedin">
+        <div class="relative w-full mb-4">
+          <label class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg" for="linkedin">
             {{
               regPageSetting?.reg_page_setting_detail?.[0]
                 ?.step_6_social_media5_label

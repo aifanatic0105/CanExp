@@ -13,7 +13,7 @@ class ValidUrl implements Rule
 
 
         // return preg_match($pattern, $value);
-        $pattern = '/^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})(\/[@a-zA-Z0-9-\/._?&=#]*)?$/i';
+        $pattern = '/^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[\@a-zA-Z0-9-\/._?&=#]*)?$/i';
 
         return preg_match($pattern, $value);
         // return true;

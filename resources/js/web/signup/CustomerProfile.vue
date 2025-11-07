@@ -25,9 +25,9 @@
         </template>
       </div>
       <div class="my-4">
-        <div class="relative w-full mb-3">
+        <div class="relative w-full mb-4">
           <label
-            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg"
             for="company-name"
           >
             {{
@@ -58,9 +58,9 @@
             :validationErros="validationErros"
           />
         </div>
-        <div class="relative w-full mb-3">
+        <div class="relative w-full mb-4">
           <label
-            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg"
             for="company-email"
           >
             {{
@@ -94,9 +94,9 @@
             :validationErros="validationErros"
           />
         </div>
-        <div class="relative w-full mb-3">
+        <div class="relative w-full mb-4">
           <label
-            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg"
             for="mailing-address"
           >
             {{
@@ -111,11 +111,7 @@
               regPageSetting?.reg_page_setting_detail?.[0]
                 ?.step_4_address_placeholder
             "
-
-            @input="
-      handleInput($event.target.value, 'customer_profile_address');
-      clearValidationError('customer_profile_address');
-    "
+            @input="handleMailingAddressInput($event)"
             :value="
               form && form.has('customer_profile_address')
                 ? form.get('customer_profile_address')
@@ -128,9 +124,9 @@
             :validationErros="validationErros"
           />
         </div>
-        <div class="relative w-full mb-3">
+        <div class="relative w-full mb-4">
           <label
-            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg"
             for="phone"
           >
             {{
@@ -163,9 +159,9 @@
             :validationErros="validationErros"
           />
         </div>
-        <div class="relative w-full mb-3">
+        <div class="relative w-full mb-4">
           <label
-            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg"
             for="website"
           >
             {{
@@ -197,15 +193,12 @@
             :validationErros="validationErros"
           />
         </div>
-        <div class="relative w-full mb-3" v-if="package_type !== 'free'">
+        <div class="relative w-full mb-4">
           <label
-            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg"
             for="cta_btn"
+            v-html="ctaBtnLabelFormatted"
           >
-            {{
-              regPageSetting?.reg_page_setting_detail?.[0]?.step_4_cta_btn_label
-            }}
-            <!-- <span class="text-red-500">*</span> -->
           </label>
           <input
             type="text"
@@ -231,9 +224,9 @@
             :validationErros="validationErros"
           />
         </div>
-        <div class="relative w-full mb-3" v-if="package_type !== 'free'">
+        <div class="relative w-full mb-4">
           <label
-            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg"
             for="cta_link"
           >
             {{
@@ -265,9 +258,9 @@
             :validationErros="validationErros"
           />
         </div>
-        <!-- <div class="relative w-full mb-3">
+        <!-- <div class="relative w-full mb-4">
           <label
-            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg"
             for="short-description"
           >
             {{
@@ -300,9 +293,9 @@
             :validationErros="validationErros"
           />
         </div>
-        <div class="relative w-full mb-3">
+        <div class="relative w-full mb-4">
           <label
-            class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+            class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg"
             for="detailed-description"
           >
             {{
@@ -335,9 +328,9 @@
             :validationErros="validationErros"
           />
         </div> -->
-        <div class="relative w-full mb-3">
+        <div class="relative w-full mb-4">
   <label
-    class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+    class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg"
     for="short-description"
   >
     {{
@@ -371,9 +364,9 @@
   />
 </div>
 
-<div class="relative w-full mb-3">
+<div class="relative w-full mb-4">
   <label
-    class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+    class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg"
     for="detailed-description"
   >
     {{
@@ -407,9 +400,9 @@
   />
 </div>
 
-<!-- <div class="relative w-full mb-3">
+<!-- <div class="relative w-full mb-4">
   <label
-    class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+    class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg"
     for="keywords"
   >
     {{
@@ -442,9 +435,9 @@
   />
 </div> -->
 
-        <div class="relative w-full mb-3">
+        <div class="relative w-full mb-4">
   <label
-    class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg"
+    class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg"
     for="keywords"
   >
     {{
@@ -505,8 +498,17 @@ export default {
       form: (state) => state.signup.form,
       regPageSetting: (state) => state.signup.regPageSetting,
       validationErros: (state) => state.signup.validationErros,
-      package_type: (state) => state.signup.package_type,
     }),
+    ctaBtnLabelFormatted() {
+      const rawLabel =
+        this.regPageSetting?.reg_page_setting_detail?.[0]?.step_4_cta_btn_label || "";
+
+      if (!rawLabel) {
+        return "";
+      }
+
+      return rawLabel.replace(/\(5\)/g, '<sup class="footnote-indicator">(5)</sup>');
+    },
   },
   created() {
   if (this.profile == "1") {
@@ -561,6 +563,9 @@ export default {
   }
 },
   methods: {
+    handleMailingAddressInput(event) {
+      this.restrictToLines(event, 5, "customer_profile_address");
+    },
     restrictToKeywords(event, maxKeywords = 5, maxWordsPerKeyword = 10) {
   let inputValue = event.target.value;
 
@@ -636,6 +641,31 @@ restrictToLength(event, maxWords, fieldName) {
       this.form[fieldName] = val;
     }
   },
+    restrictToLines(event, maxLines, fieldName) {
+      const inputElement = event.target;
+      const rawValue = inputElement.value || "";
+      const normalizedValue = rawValue.replace(/\r\n/g, "\n");
+      const lines = normalizedValue.split(/\n/);
+
+      if (lines.length > maxLines) {
+        const truncatedValue = lines.slice(0, maxLines).join("\n");
+        inputElement.value = truncatedValue;
+        this.updateForm(fieldName, truncatedValue);
+
+        const errorMessage = `Mailing Address must not contain more than ${maxLines} lines.`;
+
+        this.$store.commit("signup/updateValidationErros", {
+          field: fieldName,
+          message: errorMessage,
+        });
+
+        return;
+      }
+
+      this.clearValidationError(fieldName);
+      this.$store.commit("signup/removeValidationErros", { field: [fieldName] });
+      this.updateForm(fieldName, rawValue);
+    },
   updateForm(field, value) {
     // Update Vuex store
     this.$store.commit("signup/setForm", {
@@ -697,3 +727,11 @@ restrictToLength(event, maxWords, fieldName) {
   props: ["profile", "user", "page_id"],
 };
 </script>
+
+<style scoped>
+.footnote-indicator {
+  font-size: 0.75em;
+  vertical-align: super;
+  line-height: 1;
+}
+</style>

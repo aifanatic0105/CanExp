@@ -25,8 +25,8 @@
       </div>
 
       <div class="my-4">
-        <div class="relative w-full mb-3">
-          <label class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg" for="name">
+        <div class="relative w-full mb-4">
+          <label class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg" for="name">
             {{
               regPageSetting?.reg_page_setting_detail?.[0]?.step_2_name_label
             }}
@@ -39,8 +39,8 @@
             @input="updateForm('name', $event.target.value)" ref="name"></textarea>
           <Error fieldName="name" :validationErros="validationErros" />
         </div>
-        <div class="relative w-full mb-3">
-          <label class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg" for="email">
+        <div class="relative w-full mb-4">
+          <label class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg" for="email">
             {{
               regPageSetting?.reg_page_setting_detail?.[0]?.step_2_email_label
             }}
@@ -57,8 +57,8 @@
               " />
           <Error fieldName="email" :validationErros="validationErros" />
         </div>
-        <div class="relative w-full mb-3" v-if="profile == '1' && JSON.parse(user)?.is_package_amount_paid">
-          <label class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg" for="profile-image">
+        <div class="relative w-full mb-4" v-if="profile == '1' && JSON.parse(user)?.is_package_amount_paid">
+          <label class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg" for="profile-image">
             {{
               regPageSetting?.reg_page_setting_detail?.[0]
                 ?.step_2_profile_image_label
@@ -71,8 +71,8 @@
             @processfile="handleProfileImageProcess" @removefile="handleProfileImageRemoveFile" />
           <Error fieldName="profile_image" :validationErros="validationErros" />
         </div>
-        <div class="relative w-full mb-3" v-if="profile != '1'">
-          <label class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg" for="password">
+        <div class="relative w-full mb-4" v-if="profile != '1'">
+          <label class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg" for="password">
             {{
               regPageSetting?.reg_page_setting_detail?.[0]
                 ?.step_2_password_label
@@ -123,8 +123,8 @@
           </div>
           <Error fieldName="password" :validationErros="validationErros" />
         </div>
-        <div class="relative w-full mb-3" v-if="profile != '1'">
-          <label class="block text-gray-700 mb-2 text-base md:text-base lg:text-lg" for="confirm-password">
+        <div class="relative w-full mb-4" v-if="profile != '1'">
+          <label class="block text-gray-700 mb-1 text-base md:text-base lg:text-lg" for="confirm-password">
             {{
               regPageSetting?.reg_page_setting_detail?.[0]
                 ?.step_2_confirm_password_label

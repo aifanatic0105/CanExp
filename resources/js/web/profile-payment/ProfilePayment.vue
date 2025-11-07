@@ -3,10 +3,10 @@
     <!--Form-->
     <form class="bg-white">
       <div
-        class="flex justify-center gap-6 items-start xl:gap-12 px-4 py-8 sm:px-10"
+        class="flex justify-center gap-6 items-stretch xl:gap-12 px-4 py-8 sm:px-10"
       >
-        <div v-if="calTotalPrice() > 0" class="w-full">
-          <div class="w-full">
+        <div v-if="calTotalPrice() > 0" class="w-full flex">
+          <div class="h-full w-full rounded-lg border bg-white p-4 md:p-6 shadow-md flex flex-col">
             <div>
               <!--Debit Card-->
               <div class="flex justify-between items-center md:p-3">
@@ -71,7 +71,7 @@
                   >
                     <div class="flex justify-center items-center">
                       <div class="h-auto bg-white p-3 rounded-lg w-full">
-                        <div class="input_text mt-6 relative">
+                        <div class="input_text relative">
                           <label class="">{{
                             payment_setting &&
                             JSON.parse(payment_setting) &&
@@ -127,7 +127,7 @@
             </div>
           </div>
         </div>
-        <div class="w-full mt-6 rounded-lg border bg-white p-4 md:p-6 shadow-md md:mt-0">
+        <div class="w-full mt-6 rounded-lg border bg-white p-4 md:p-6 shadow-md md:mt-0 flex flex-col h-full">
           <div class="mb-2 flex justify-between">
             <p class="text-gray-700">{{ JSON.parse(payment_setting)["package_text"]  }}</p>
             <p class="text-gray-700 capitalize">
@@ -151,7 +151,7 @@
               <p class="mb-1 text-lg font-bold capitalize">${{ calTotalPrice() }}</p>
             </div>
           </div>
-          <div class="text-center">
+          <div class="text-center mt-auto">
             <button
               class="button-exp-fill mt-6"
               type="button"

@@ -268,7 +268,7 @@
                         clip-rule="evenodd"
                       />
                     </svg>
-                    {{ features?.name }}
+                    <span v-html="formatFeatureName(features?.name)"></span>
                   </li>
                 </ul>
               </div>
@@ -364,7 +364,7 @@
                         clip-rule="evenodd"
                       />
                     </svg>
-                    {{ features?.name }}
+                    <span v-html="formatFeatureName(features?.name)"></span>
                   </li>
                 </ul>
               </div>
@@ -462,7 +462,7 @@
                         clip-rule="evenodd"
                       />
                     </svg>
-                    {{ features?.name }}
+                    <span v-html="formatFeatureName(features?.name)"></span>
                   </li>
                 </ul>
               </div>
@@ -619,6 +619,12 @@ export default {
 
 
     },
+    formatFeatureName(name) {
+      if (!name) {
+        return "";
+      }
+      return String(name).replace(/\((\d+)\)/g, '<sup class="footnote-indicator">($1)</sup>');
+    },
   },
   created() {
 
@@ -689,3 +695,11 @@ export default {
   props: ["profile", "user", "payment_setting"],
 };
 </script>
+
+<style scoped>
+.footnote-indicator {
+  font-size: 0.75em;
+  vertical-align: super;
+  line-height: 1;
+}
+</style>
