@@ -1456,27 +1456,101 @@ if (!function_exists("langBasedURL")) {
             $defaultLang = getDefaultLanguage(1);
         }
 
+        if ($url === null || trim($url) === '') {
+            return $url;
+        }
+
+        $appUrl = rtrim(config('app.url') ?? env('APP_URL'), '/');
+
+        if (!$appUrl) {
+            return $url;
+        }
+
+        static $languageCodes = null;
+
+        if ($languageCodes === null) {
+            $languageCodes = Language::pluck('abbreviation')
+                ->filter()
+                ->map(fn ($code) => strtolower($code))
+                ->values()
+                ->toArray();
+        }
+
+        $targetLanguage = $defaultLang;
+
         if ($newLanguage) {
-            $abbreviation = Language::whereId($newLanguage)->value('abbreviation');
-            $temp = explode("/", $url);
-            if (count($temp) == 3) {
-                $url = str_replace(env('APP_URL'), env('APP_URL') . '/' . $abbreviation, $url);
-            } else {
-                $url = str_replace(env('APP_URL') . '/' . $defaultLang->abbreviation, env('APP_URL') . '/' . $abbreviation, $url);
+            $targetLanguage = Language::find($newLanguage) ?? $defaultLang;
+        }
+
+        $targetAbbreviation = $targetLanguage->abbreviation;
+        $normalizedTarget = strtolower($targetAbbreviation);
+        $normalizedUrl = trim($url);
+        $isAbsolute = (bool) preg_match('#^https?://#i', $normalizedUrl);
+
+        $normalizeHost = static function ($host) {
+            $host = strtolower($host ?? '');
+
+            if (str_starts_with($host, 'www.')) {
+                return substr($host, 4);
             }
-        } else if (strpos($url, env('APP_URL')) !== false) {
-            if (!str_contains($url, env('APP_URL') . '/' . $defaultLang->abbreviation)) {
-                $url = str_replace(env('APP_URL'), env('APP_URL') . '/' . $defaultLang->abbreviation, $url);
-                $url = url($url);
-            }
-        } else {
-            if (!str_contains($url, env('APP_URL') . '/' . $defaultLang->abbreviation)) {
-                $url = url($defaultLang->abbreviation . '/' . $url);
-            } else {
-                $url = $defaultLang->abbreviation . '/' . $url;
+
+            return $host;
+        };
+
+        $parsed = $isAbsolute
+            ? parse_url($normalizedUrl)
+            : parse_url('https://placeholder/' . ltrim($normalizedUrl, '/'));
+
+        $path = ltrim($parsed['path'] ?? '', '/');
+        $query = $parsed['query'] ?? null;
+        $fragment = $parsed['fragment'] ?? null;
+
+        $appHost = $normalizeHost(parse_url($appUrl, PHP_URL_HOST));
+
+        if ($isAbsolute) {
+            $urlHost = $normalizeHost($parsed['host'] ?? '');
+
+            if ($urlHost && $urlHost !== $appHost) {
+                return $normalizedUrl;
             }
         }
-        return $url;
+
+        $segments = $path === '' ? [] : explode('/', $path);
+
+        if (!empty($segments)) {
+            $firstSegment = strtolower($segments[0]);
+
+            if (in_array($firstSegment, $languageCodes, true)) {
+                array_shift($segments);
+            }
+        }
+
+        if ($normalizedTarget !== '' && ($segments === [] || strtolower($segments[0]) !== $normalizedTarget)) {
+            array_unshift($segments, $targetAbbreviation);
+        }
+
+        $segments = array_values(array_filter($segments, static fn ($segment) => $segment !== ''));
+        $normalizedPath = implode('/', $segments);
+
+        if ($normalizedPath === '') {
+            $normalizedPath = $targetAbbreviation;
+        }
+
+        if ($isAbsolute) {
+            $rebuiltUrl = rtrim($appUrl, '/') . '/' . $normalizedPath;
+        } else {
+            $rebuiltUrl = url($normalizedPath);
+        }
+
+        if ($query) {
+            $rebuiltUrl .= '?' . $query;
+        }
+
+        if ($fragment) {
+            $rebuiltUrl .= '#' . $fragment;
+        }
+
+        return $rebuiltUrl;
     }
 }
 
