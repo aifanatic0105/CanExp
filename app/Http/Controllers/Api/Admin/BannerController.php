@@ -128,7 +128,7 @@ class BannerController extends Controller
                     'is_package_amount_paid' => 1,
                 ]);
                 $data = ['name' => $request->name, 'email' => $request->email, 'password' => $randomPassword];
-                Mail::to($request->email)->send(new SponsorCredentialsMail($data));
+                //----Mail::to($request->email)->send(new SponsorCredentialsMail($data));
             }
         }
 
@@ -164,7 +164,7 @@ class BannerController extends Controller
         if ($banner && $customer) {
             $data = ['name' => $request->name, 'email' => $request->email, 'password' => $randomPassword];
             Log::info(['data' => $data]);
-            Mail::to($request->email)->send(new SponsorCredentialsMail($data));
+            //----Mail::to($request->email)->send(new SponsorCredentialsMail($data));
         }
 
 

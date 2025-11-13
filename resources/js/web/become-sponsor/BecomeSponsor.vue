@@ -65,25 +65,54 @@
           <h4 class="text-white">Sponsorship Details</h4>
         </div>
         <div class="p-6">
-          <!-- Amount Input -->
+          <!-- Amount Selection -->
           <div class="relative w-full mb-6">
-            <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg font-medium" for="sponsorship_amount">
-              Enter Your Sponsorship Amount
+            <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg font-medium">
+              Select Your Sponsorship Amount & Frequency
               <span class="text-red-500">*</span>
             </label>
-            <div class="relative flex items-center">
-              <span class="absolute left-4 text-gray-500 text-xl font-bold">$</span>
-              <input
-                type="number"
-                id="sponsorship_amount"
-                v-model="form.sponsorship_amount"
-                class="block pl-10 border-2 p-3 w-full rounded border-green-500 focus:outline-none focus:border-blue-600 text-lg"
-                placeholder="0.00"
-                min="1"
-                step="0.01"
-                @input="clearErrors('sponsorship_amount')"
-              />
+            
+            <!-- Frequency Tabs -->
+            <div class="flex flex-wrap gap-2 mb-4">
+              <button
+                v-for="(label, key) in frequencies"
+                :key="key"
+                type="button"
+                @click="selectedFrequency = key"
+                class="px-4 py-2 rounded-md font-medium text-sm transition-all"
+                :class="
+                  selectedFrequency === key
+                    ? 'bg-primary text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                "
+              >
+                {{ label }}
+              </button>
             </div>
+
+            <!-- Amount Cards for Selected Frequency -->
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div v-for="amount in getAmountsByFrequency(selectedFrequency)" :key="amount.id">
+                <div
+                  class="bg-gray-50 rounded-md border shadow text-base md:text-lg font-medium flex flex-col items-center justify-center h-20 hover:shadow-md border-gray-100 cursor-pointer hover:border-2 hover:border-green-500 transition-all"
+                  :class="
+                    form.sponsorship_amount == amount.amount && form.frequency == amount.frequency
+                      ? 'border-2 border-green-500 text-green-600 bg-green-50'
+                      : ''
+                  "
+                  @click="updateSponsorAmount(amount)"
+                >
+                  <span class="text-center font-bold">${{ formatAmount(amount.amount) }}</span>
+                  <span class="text-xs text-gray-500 mt-1">{{ getFrequencyLabel(amount.frequency) }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- No amounts message -->
+            <div v-if="getAmountsByFrequency(selectedFrequency).length === 0" class="text-center py-8 text-gray-500">
+              No sponsorship amounts available for this frequency.
+            </div>
+            
             <Error v-if="submitted" fieldName="sponsorship_amount" :validationErros="validationErros" full_width="1" />
           </div>
 
@@ -104,7 +133,7 @@
                   "
                   @click="updateBeneficiary(beneficiary)"
                 >
-                  <span>{{ beneficiary.name }}</span>
+                  <span class="text-center">{{ beneficiary.name }}</span>
                 </div>
               </div>
             </div>
@@ -395,33 +424,11 @@
               <Error v-if="submitted" fieldName="message" :validationErros="validationErros" />
             </div>
 
-            <!-- Logo Upload -->
-            <div class="relative w-full">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="logo">
-                Company Logo (Optional)
-                <span class="text-sm text-gray-500">- Max 10MB, PNG/JPG/JPEG/GIF</span>
-              </label>
-              <FilePond
-                @input="clearErrors('logo')"
-                ref="filePondLogo"
-                name="logo"
-                label-idle="<span class='cursor-pointer'>Drag & Drop your logo or Browse</span>"
-                class="cursor-pointer"
-                accepted-file-types="image/*"
-                max-file-size="10MB"
-                @init="handleFilePondInit"
-                @processfile="handleLogoProcess"
-                @removefile="handleLogoRemoveFile"
-                :files="logo_path"
-              />
-              <Error v-if="submitted" fieldName="logo" :validationErros="validationErros" />
-            </div>
-
-            <!-- Featured Image Upload -->
+            <!-- Featured Image Upload (appears on Home page) -->
             <div class="relative w-full">
               <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="featured_image">
-                Featured Image (Optional)
-                <span class="text-sm text-gray-500">- Max 10MB, PNG/JPG/JPEG/GIF</span>
+                Featured Image (appears on the Home page)
+                <span class="text-red-500">*</span>
               </label>
               <FilePond
                 @input="clearErrors('featured_image')"
@@ -437,6 +444,28 @@
                 :files="featured_image_path"
               />
               <Error v-if="submitted" fieldName="featured_image" :validationErros="validationErros" />
+            </div>
+
+            <!-- Profile Image Upload -->
+            <div class="relative w-full">
+              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="logo">
+                Profile Image
+                <span class="text-red-500">*</span>
+              </label>
+              <FilePond
+                @input="clearErrors('logo')"
+                ref="filePondLogo"
+                name="logo"
+                label-idle="<span class='cursor-pointer'>Drag & Drop your profile image or Browse</span>"
+                class="cursor-pointer"
+                accepted-file-types="image/*"
+                max-file-size="10MB"
+                @init="handleFilePondInit"
+                @processfile="handleLogoProcess"
+                @removefile="handleLogoRemoveFile"
+                :files="logo_path"
+              />
+              <Error v-if="submitted" fieldName="logo" :validationErros="validationErros" />
             </div>
           </div>
         </div>
@@ -595,6 +624,7 @@ export default {
       form: {
         talk_to_us_first: false,
         sponsorship_amount: null,
+        frequency: 'one_time',
         beneficiary_id: null,
         payment_method: "stripe",
         company_name: "",
@@ -618,6 +648,10 @@ export default {
         preferred_call_date: null,
       },
       beneficiaries: [],
+      sponsorAmounts: [],
+      groupedAmounts: {},
+      frequencies: {},
+      selectedFrequency: 'one_time',
       logo_path: [],
       featured_image_path: [],
       uploaded_files: {
@@ -648,6 +682,7 @@ export default {
     }
     
     this.fetchBeneficiaries();
+    this.fetchSponsorAmounts();
     
     // Initialize Stripe Elements (same pattern as Coffee Wall)
     try {
@@ -726,15 +761,75 @@ export default {
         const response = await axios.get(`${process.env.MIX_WEB_API_URL}get-coffee-wall-beneficiaries`);
         if (response.data.status === "Success") {
           this.beneficiaries = response.data.data;
+          
+          // Set "All" as default beneficiary
+          const allBeneficiary = this.beneficiaries.find(b => b.name.toLowerCase() === 'all');
+          if (allBeneficiary && !this.form.beneficiary_id) {
+            this.form.beneficiary_id = allBeneficiary.id;
+          }
         }
       } catch (error) {
         console.error("Error fetching beneficiaries:", error);
       }
     },
 
+    async fetchSponsorAmounts() {
+      try {
+        const response = await axios.get(`${process.env.MIX_WEB_API_URL}get-sponsor-amounts`);
+        if (response.data.status === "Success") {
+          this.sponsorAmounts = response.data.data.amounts || response.data.data;
+          this.groupedAmounts = response.data.data.grouped || {};
+          this.frequencies = response.data.data.frequencies || {};
+          
+          // Set default frequency to 'one_time' if available
+          if (this.frequencies['one_time']) {
+            this.selectedFrequency = 'one_time';
+          } else {
+            // Otherwise, use the first available frequency
+            const firstFrequency = Object.keys(this.frequencies)[0];
+            if (firstFrequency) {
+              this.selectedFrequency = firstFrequency;
+            }
+          }
+          
+          // Set default amount for the selected frequency
+          const defaultAmount = this.sponsorAmounts.find(
+            a => a.is_default && a.frequency === this.selectedFrequency
+          );
+          if (defaultAmount && !this.form.sponsorship_amount) {
+            this.form.sponsorship_amount = defaultAmount.amount;
+            this.form.frequency = defaultAmount.frequency;
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching sponsor amounts:", error);
+      }
+    },
+
     updateBeneficiary(beneficiary) {
       this.form.beneficiary_id = beneficiary.id;
       this.clearErrors("beneficiary_id");
+    },
+
+    updateSponsorAmount(amount) {
+      this.form.sponsorship_amount = amount.amount;
+      this.form.frequency = amount.frequency;
+      this.clearErrors("sponsorship_amount");
+    },
+
+    getAmountsByFrequency(frequency) {
+      if (this.groupedAmounts[frequency]) {
+        return this.groupedAmounts[frequency];
+      }
+      return [];
+    },
+
+    getFrequencyLabel(frequency) {
+      return this.frequencies[frequency] || frequency;
+    },
+
+    formatAmount(amount) {
+      return new Intl.NumberFormat('en-US').format(amount);
     },
 
     setPaymentMethod(method) {
@@ -968,16 +1063,79 @@ export default {
       return tomorrow.toISOString().split("T")[0];
     },
 
-    // FilePond handlers for Logo
+    // FilePond handlers for Logo (Profile Image)
     handleFilePondInit() {
       setOptions({
         credits: false,
         server: {
-          url: process.env.MIX_ADMIN_API_URL,
-          process: "/media/process",
-          revert: "/media/revert",
+          url: process.env.MIX_APP_URL,
+          process: (
+            fieldName,
+            file,
+            metadata,
+            load,
+            error,
+            progress,
+            abort,
+            transfer,
+            options
+          ) => {
+            const formData = new FormData();
+            formData.append("media", file, file.name);
+            formData.append("is_temp_media", 1);
+            formData.append("type", "logo");
+
+            const request = new XMLHttpRequest();
+            request.open("POST", `${process.env.MIX_APP_URL}/media/process`);
+            request.setRequestHeader(
+              "X-CSRF-TOKEN",
+              document.head.querySelector('meta[name="csrf-token"]').content
+            );
+
+            request.upload.onprogress = (e) => {
+              progress(e.lengthComputable, e.loaded, e.total);
+            };
+            request.onload = function () {
+              if (request.status >= 200 && request.status < 300) {
+                load(request.responseText);
+              } else {
+                error("oh no");
+              }
+            };
+
+            request.send(formData);
+
+            return {
+              abort: () => {
+                request.abort();
+                abort();
+              },
+            };
+          },
+          revert: (uniqueFileId, load, error) => {
+            const formData = new FormData();
+            formData.append("media", uniqueFileId);
+
+            const request = new XMLHttpRequest();
+            request.open("POST", `${process.env.MIX_APP_URL}/media/revert`);
+            request.setRequestHeader(
+              "X-CSRF-TOKEN",
+              document.head.querySelector('meta[name="csrf-token"]').content
+            );
+
+            request.send(formData);
+
+            return {
+              abort: () => {
+                request.abort();
+                abort();
+              },
+            };
+          },
           headers: {
-            "X-CSRF-TOKEN": document.head.querySelector('meta[name="csrf-token"]').content,
+            "X-CSRF-TOKEN": document.head.querySelector(
+              'meta[name="csrf-token"]'
+            ).content,
           },
         },
       });
@@ -998,11 +1156,74 @@ export default {
       setOptions({
         credits: false,
         server: {
-          url: process.env.MIX_ADMIN_API_URL,
-          process: "/media/process",
-          revert: "/media/revert",
+          url: process.env.MIX_APP_URL,
+          process: (
+            fieldName,
+            file,
+            metadata,
+            load,
+            error,
+            progress,
+            abort,
+            transfer,
+            options
+          ) => {
+            const formData = new FormData();
+            formData.append("media", file, file.name);
+            formData.append("is_temp_media", 1);
+            formData.append("type", "logo");
+
+            const request = new XMLHttpRequest();
+            request.open("POST", `${process.env.MIX_APP_URL}/media/process`);
+            request.setRequestHeader(
+              "X-CSRF-TOKEN",
+              document.head.querySelector('meta[name="csrf-token"]').content
+            );
+
+            request.upload.onprogress = (e) => {
+              progress(e.lengthComputable, e.loaded, e.total);
+            };
+            request.onload = function () {
+              if (request.status >= 200 && request.status < 300) {
+                load(request.responseText);
+              } else {
+                error("oh no");
+              }
+            };
+
+            request.send(formData);
+
+            return {
+              abort: () => {
+                request.abort();
+                abort();
+              },
+            };
+          },
+          revert: (uniqueFileId, load, error) => {
+            const formData = new FormData();
+            formData.append("media", uniqueFileId);
+
+            const request = new XMLHttpRequest();
+            request.open("POST", `${process.env.MIX_APP_URL}/media/revert`);
+            request.setRequestHeader(
+              "X-CSRF-TOKEN",
+              document.head.querySelector('meta[name="csrf-token"]').content
+            );
+
+            request.send(formData);
+
+            return {
+              abort: () => {
+                request.abort();
+                abort();
+              },
+            };
+          },
           headers: {
-            "X-CSRF-TOKEN": document.head.querySelector('meta[name="csrf-token"]').content,
+            "X-CSRF-TOKEN": document.head.querySelector(
+              'meta[name="csrf-token"]'
+            ).content,
           },
         },
       });
@@ -1099,4 +1320,5 @@ export default {
   }
 }
 </style>
+
 

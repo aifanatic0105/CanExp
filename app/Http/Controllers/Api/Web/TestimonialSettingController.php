@@ -143,16 +143,16 @@ class TestimonialSettingController extends Controller
     if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
         $to_email = $adminEmailsArr[0];
         unset($adminEmailsArr[0]);
-        Mail::to($to_email)->cc($adminEmailsArr)->send(new TestimonialMail($data));
+        //----Mail::to($to_email)->cc($adminEmailsArr)->send(new TestimonialMail($data));
     } else {
         $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
         if ($to_email) {
-            Mail::to($to_email)->send(new TestimonialMail($data));
+            //----Mail::to($to_email)->send(new TestimonialMail($data));
         }
     }
 
     // Send auto-response to the customer
-    Mail::to($request->email)->send(new AutoResponseToCustomerMail([]));
+    //----Mail::to($request->email)->send(new AutoResponseToCustomerMail([]));
 
     // Get success message from translations
     $general_messages = getStaticTranslationByKey($defaultLang, 'general_messages', ['message_59']);

@@ -50,7 +50,7 @@ class EventController extends Controller
         $event = Event::whereId($request->event_id)->first();
         if ($event && $event->contact_email) {
             $data = ['event' => $event, 'data' => $data];
-            Mail::to($event->contact_email)->send(new BookingStandMail($data));
+            //----Mail::to($event->contact_email)->send(new BookingStandMail($data));
         }
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_18']);
         $message_18 = isset($general_messages['message_18']) ? $general_messages['message_18'] : '';

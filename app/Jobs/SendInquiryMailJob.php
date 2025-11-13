@@ -42,6 +42,6 @@ class SendInquiryMailJob implements ShouldQueue
             $mail->attach(public_path($this->data['pdf_3']));
         }
 
-        Mail::to($this->toEmail)->cc($this->adminEmails)->send($mail);
+        //----Mail::to($this->toEmail)->cc($this->adminEmails)->send($mail);
     }
 }

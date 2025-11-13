@@ -76,6 +76,7 @@ import BusinessProfileStats from '../admin/BusinessProfileStats/BusinessProfileS
 import BusinessProfileStatsSummary from '../admin/BusinessProfileStats/BusinessProfileStatsSummary.vue'
 import CoffeeWallBeneficiaries from '../admin/CoffeeWallBeneficiaries/Index.vue'
 import CoffeeWallFaqs from '../admin/CoffeeWallFaqs/Index.vue'
+import SponsorAmounts from '../admin/SponsorAmounts/Index.vue'
 import Articles from '../admin/Articles/Articles.vue'
 import CreateArticle from '../admin/Articles/Create.vue'
 import ArticleSections from '../admin/ArticleSections/Sections.vue'
@@ -207,6 +208,14 @@ const routes = [
         component: CreateCoffeeWallPackages,
         meta: {
             breadcrumbs: [{'name': 'Dashboard', 'routeName': 'admin.dashboard', 'isCurrentRoute': 0}, {'name': 'Coffee on wall packages', 'routeName': 'admin.coffee_on_wall_packages.index', 'isCurrentRoute': 0}, {'name': 'Edit', 'routeName': 'admin.coffee_on_wall_packages.edit', 'isCurrentRoute': 1}],
+        },
+    },
+    {
+        path: '/admin/sponsor-amounts',
+        name: 'admin.sponsor_amounts.index',
+        component: SponsorAmounts,
+        meta: {
+            breadcrumbs: [{'name': 'Dashboard', 'routeName': 'admin.dashboard', 'isCurrentRoute': 0}, {'name': 'Sponsor Amounts', 'routeName': 'admin.sponsor_amounts.index', 'isCurrentRoute': 1}],
         },
     },
     {

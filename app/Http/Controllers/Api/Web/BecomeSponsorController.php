@@ -79,11 +79,11 @@ class BecomeSponsorController extends Controller
         if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
             $to_email = $adminEmailsArr[0];
             unset($adminEmailsArr[0]);
-            Mail::to($to_email)->cc($adminEmailsArr)->send(new BecomeSponsorMail($data));
+            //----Mail::to($to_email)->cc($adminEmailsArr)->send(new BecomeSponsorMail($data));
         } else {
             $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
             if ($to_email) {
-                Mail::to($to_email)->send(new BecomeSponsorMail($data));
+                //----Mail::to($to_email)->send(new BecomeSponsorMail($data));
             }
         }
 
@@ -169,17 +169,20 @@ class BecomeSponsorController extends Controller
             // Check if user is already logged in
             $loggedInCustomer = \Illuminate\Support\Facades\Auth::guard('customers')->user();
             
+            // Check if this email already exists in the system
+            $existingCustomer = Customer::where('email', $request->email)->first();
+            
             // Dynamic validation rules based on option selected
             $rules = [
                 'company_name' => 'required|string|max:255',
                 'contact_name' => 'required|string|max:255',
                 'email' => 'required|email|max:255',
                 'contact_number' => 'required|string|max:50',
-                'url' => ['nullable', new ValidUrl()],
+                'url' => 'nullable|url',  // Use Laravel's built-in URL validation after normalization
             ];
             
-            // Password only required for new users (not logged in)
-            if (!$loggedInCustomer) {
+            // Password only required for NEW users (not logged in AND email doesn't exist)
+            if (!$loggedInCustomer && !$existingCustomer) {
                 $rules['password'] = 'required|string|min:8|confirmed';
             }
 
@@ -187,12 +190,13 @@ class BecomeSponsorController extends Controller
             if (!$talkToUsFirst) {
                 $rules = array_merge($rules, [
                     'sponsorship_amount' => 'required|numeric|min:1',
+                    'frequency' => 'required|in:one_time,monthly,quarterly,annually',
                     'beneficiary_id' => 'required|exists:coffee_wall_beneficiaries,id',
                     'payment_method' => 'required|in:stripe,paypal',
                     'summary' => 'required|string',
                     'detail_description' => 'required|string',
-                    'logo' => 'nullable|string',
-                    'featured_image' => 'nullable|string',
+                    'logo' => 'required|string',  // Profile Image - REQUIRED
+                    'featured_image' => 'required|string',  // Featured Image - REQUIRED
                     // Stripe specific (same as coffee wall)
                     'payment_method_id' => 'required_if:payment_method,stripe|string',
                     'cardholder_name' => 'required_if:payment_method,stripe',
@@ -212,7 +216,34 @@ class BecomeSponsorController extends Controller
                 ]);
             }
 
-            $validated = $request->validate($rules);
+            // Normalize URL - add https:// if no protocol is present
+            // Trim whitespace and handle empty strings
+            $url = trim($request->url ?? '');
+            if (!empty($url)) {
+                if (!preg_match('/^https?:\/\//i', $url)) {
+                    $url = 'https://' . $url;
+                }
+                $request->merge(['url' => $url]);
+            } else {
+                // If URL is empty/whitespace, set to null for nullable validation
+                $request->merge(['url' => null]);
+            }
+
+            // Custom validation messages
+            $messages = [
+                'url.url' => 'Please enter a valid website URL (e.g., www.example.com or https://example.com)',
+                'sponsorship_amount.required' => 'Please select a sponsorship amount',
+                'sponsorship_amount.numeric' => 'Sponsorship amount must be a number',
+                'sponsorship_amount.min' => 'Sponsorship amount must be at least $1',
+                'beneficiary_id.required' => 'Please select a beneficiary',
+                'payment_method.required' => 'Please select a payment method',
+                'logo.required' => 'Profile Image is required',
+                'featured_image.required' => 'Featured Image is required',
+                'cardholder_name.required_if' => 'Cardholder name is required for card payments',
+                'payment_method_id.required_if' => 'Please enter your card details',
+            ];
+
+            $validated = $request->validate($rules, $messages);
 
             Log::info('Validation passed');
 
@@ -220,16 +251,32 @@ class BecomeSponsorController extends Controller
             $logoMediaId = null;
             $featuredMediaId = null;
 
+            // Check if GD library is available before processing images
+            if (!extension_loaded('gd')) {
+                Log::error('GD Library is not enabled. Cannot process images.');
+                return $this->errorResponse('Image processing is currently unavailable. Please contact support. (Error: GD Library not enabled)');
+            }
+
             if ($request->logo && !is_array($request->logo)) {
                 $media = json_decode($request->logo, true);
-                $files = $this->moveFile($media, 'media/sponsors', 'sponsor');
-                $logoMediaId = (!empty($files) && is_array($files) && isset($files[0])) ? $files[0]->id : null;
+                try {
+                    $files = $this->moveFile($media, 'media/sponsors', 'sponsor');
+                    $logoMediaId = (!empty($files) && is_array($files) && isset($files[0])) ? $files[0]->id : null;
+                } catch (\Exception $e) {
+                    Log::error('Error processing logo image', ['error' => $e->getMessage()]);
+                    return $this->errorResponse('Error uploading Profile Image. Please try again or contact support.');
+                }
             }
 
             if ($request->featured_image && !is_array($request->featured_image)) {
                 $media = json_decode($request->featured_image, true);
-                $files = $this->moveFile($media, 'media/sponsors', 'sponsor');
-                $featuredMediaId = (!empty($files) && is_array($files) && isset($files[0])) ? $files[0]->id : null;
+                try {
+                    $files = $this->moveFile($media, 'media/sponsors', 'sponsor');
+                    $featuredMediaId = (!empty($files) && is_array($files) && isset($files[0])) ? $files[0]->id : null;
+                } catch (\Exception $e) {
+                    Log::error('Error processing featured image', ['error' => $e->getMessage()]);
+                    return $this->errorResponse('Error uploading Featured Image. Please try again or contact support.');
+                }
             }
 
             // Generate unique slug
@@ -266,9 +313,12 @@ class BecomeSponsorController extends Controller
                         $isNewCustomer = true;
                         Log::info('New sponsor customer created', ['customer_id' => $customer->id]);
                     } else {
-                        // Email exists but user not logged in - require sign in
-                        Log::warning('Email already exists, user not logged in');
-                        return $this->errorResponse('This email is already registered. Please sign in to create additional sponsorships.', 422);
+                        // Email exists - allow sponsor to use it without logging in
+                        // Just associate the sponsorship with the existing customer
+                        Log::info('Using existing customer email for new sponsorship', ['customer_id' => $customer->id]);
+                        $isNewCustomer = false;
+                        // Do NOT send welcome email since customer already exists
+                        $sendWelcomeEmail = false;
                     }
                 }
             }
@@ -370,6 +420,7 @@ class BecomeSponsorController extends Controller
                 'message' => $request->message,
                 'sponsorship_type' => $sponsorshipType,
                 'sponsorship_amount' => $request->sponsorship_amount ?? null,
+                'frequency' => $request->frequency ?? 'one_time',
                 'talk_to_us_first' => $talkToUsFirst,
                 'preferred_call_time' => $request->preferred_call_time ?? null,
                 'preferred_call_date' => $request->preferred_call_date ?? null,
@@ -397,17 +448,17 @@ class BecomeSponsorController extends Controller
                 
                 if ($talkToUsFirst) {
                     // Send "Talk to Us" notification
-                    Mail::to($adminEmailsArr)->send(new SponsorContactRequestNotification($sponsor));
+                    //----Mail::to($adminEmailsArr)->send(new SponsorContactRequestNotification($sponsor));
                 } elseif ($paymentStatus === 'paid') {
                     // Send payment success notification
-                    Mail::to($adminEmailsArr)->send(new NewSponsorPaymentNotification($sponsor));
+                    //----Mail::to($adminEmailsArr)->send(new NewSponsorPaymentNotification($sponsor));
                 }
             }
 
             // Send welcome email to sponsor if new account (no password needed - they set it themselves)
             if ($sendWelcomeEmail && $customer) {
                 // You can send a welcome email here if needed
-                // Mail::to($request->email)->send(new SponsorWelcomeMail([
+                // //----Mail::to($request->email)->send(new SponsorWelcomeMail([
                 //     'name' => $request->contact_name
                 // ]));
             }
@@ -601,13 +652,24 @@ class BecomeSponsorController extends Controller
 
             Log::info('Updating sponsor profile', ['customer_id' => $customer->id, 'data' => $request->except(['logo', 'featured_image'])]);
 
+            // Normalize URL - add https:// if no protocol is present
+            $url = trim($request->url ?? '');
+            if (!empty($url)) {
+                if (!preg_match('/^https?:\/\//i', $url)) {
+                    $url = 'https://' . $url;
+                }
+                $request->merge(['url' => $url]);
+            } else {
+                $request->merge(['url' => null]);
+            }
+
             $validated = $request->validate([
                 'id' => 'required|exists:sponsors,id',
                 'company_name' => 'required|string|max:255',
                 'contact_name' => 'required|string|max:255',
                 'email' => 'required|email|max:255',
                 'contact_number' => 'required|string|max:50',
-                'url' => ['nullable', new ValidUrl()],
+                'url' => 'nullable|url',  // Use Laravel's built-in URL validation
                 'summary' => 'required|string',
                 'detail_description' => 'required|string',
                 'message' => 'nullable|string',

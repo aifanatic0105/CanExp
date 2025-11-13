@@ -96,7 +96,7 @@
             
             <div class="detail-row">
                 <span class="label">Date & Time:</span>
-                <div>{{ $sponsor->paid_at->format('F j, Y \a\t g:i A') }}</div>
+                <div>{{ $sponsor->paid_at ? $sponsor->paid_at->format('F j, Y \a\t g:i A') : 'N/A' }}</div>
             </div>
             
             @if($sponsor->beneficiary)

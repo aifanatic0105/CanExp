@@ -190,18 +190,33 @@ trait FileUploadTrait
                 }
                 // Normalize any absolute URL or '/storage/...' paths from client
                 $normalizedTemp = $this->normalizeTempPath($tempFile);
-                // Resolve source path from storage/app/public first, then fall back to public paths if needed
-                $sourcePath = config('filesystems.disks.public.root') . DIRECTORY_SEPARATOR . $normalizedTemp;
+                
+                Log::info("moveFile: Processing temp file", [
+                    'original' => $tempFile,
+                    'normalized' => $normalizedTemp
+                ]);
+                
+                // Ensure consistent directory separators
+                $normalizedTemp = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $normalizedTemp);
+                
+                // The path comes as "media/temp/xxx/file.jpg" and is stored in storage/app/public/
+                // Normalize the storage root path too (fix mixed separators)
+                $storageRoot = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, config('filesystems.disks.public.root'));
+                $sourcePath = $storageRoot . DIRECTORY_SEPARATOR . $normalizedTemp;
                 if (!file_exists($sourcePath) || !is_file($sourcePath)) {
                     // Try direct public path (e.g., public/media/temp/...)
                     $altSourcePath = public_path($normalizedTemp);
                     if (file_exists($altSourcePath) && is_file($altSourcePath)) {
                         $sourcePath = $altSourcePath;
+                        Log::info("moveFile: Found file at alternative path (public): {$altSourcePath}");
                     } else {
                         // Try via public/storage symlink (e.g., public/storage/media/temp/...)
                         $symlinkSourcePath = public_path('storage' . DIRECTORY_SEPARATOR . $normalizedTemp);
                         if (file_exists($symlinkSourcePath) && is_file($symlinkSourcePath)) {
                             $sourcePath = $symlinkSourcePath;
+                            Log::info("moveFile: Found file at symlink path: {$symlinkSourcePath}");
+                        } else {
+                            Log::error("moveFile: File not found at any path. Tried: {$sourcePath}, {$altSourcePath}, {$symlinkSourcePath}");
                         }
                     }
                 }

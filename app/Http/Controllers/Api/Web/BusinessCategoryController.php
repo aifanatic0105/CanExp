@@ -142,14 +142,14 @@ class BusinessCategoryController extends Controller
             $customer = Auth::guard('customers')->check() ? Auth::guard('customers')->user() : null;
 
             if ($customer) {
-                Mail::to($customer->email)->send(new SendCopyToUserMail($customerProfile, $data));
+                //----Mail::to($customer->email)->send(new SendCopyToUserMail($customerProfile, $data));
             }
         }
 
         if (isset($adminEmailsArr)) {
-            Mail::to($customerProfile->company_email)->cc($adminEmailsArr)->send(new ContactCompanyMail($data, $customerProfile->company_name));
+            //----Mail::to($customerProfile->company_email)->cc($adminEmailsArr)->send(new ContactCompanyMail($data, $customerProfile->company_name));
         } else {
-            Mail::to($customerProfile->company_email)->send(new ContactCompanyMail($data, $customerProfile->company_name));
+            //----Mail::to($customerProfile->company_email)->send(new ContactCompanyMail($data, $customerProfile->company_name));
         }
         // Email to customer
         Mail::to($request->email)->send(

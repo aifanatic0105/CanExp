@@ -2,112 +2,18 @@
     <form class="lg:w-full" @submit.prevent="recaptcha()">
 
         <div class="bg-white rounded-lg overflow-hidden shadow-3xl my-6 p-8">
-            <h1 class="text-primary mb-2">{{ JSON.parse(coffee_wall_setting)["coffee_wall_heading"] ?? 'Coffee on Wall' }}
-        </h1>
+            <h1 class="text-primary mb-2">{{ JSON.parse(coffee_wall_setting)["coffee_wall_heading"] ?? 'Coffee on Wall' }}</h1>
+            <p class="">
+                The <span class="font-bold">“Coffee on the Wall”</span> initiative was inspired by this beautiful story 
+                <a href="https://www.kindspring.org/story/view.php?sid=44089" target="_blank" rel="noopener" class="text-primary underline font-bold underline-none">
+                    beautiful story
+                </a>
+            </p>
+            <p class="text-gray-600">
+                It's a wonderful example of how a simple act of kindness can change the way someone sees the world.
+            </p>
 
-        <!-- FAQ Sections -->
-        <div class="mt-8 space-y-4" v-if="faqs.donor.length > 0 || faqs.beneficiary.length > 0">
-            <!-- FAQ for Donors -->
-            <div v-if="faqs.donor.length > 0" class="bg-white rounded-lg overflow-hidden shadow-3xl">
-                <div
-                    @click="toggleFaqSection('donor')"
-                    class="px-4 py-3 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md cursor-pointer hover:opacity-90 transition-opacity flex justify-between items-center">
-                    <h4 class="text-white">FAQ for the Donors</h4>
-                    <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        stroke-width="2" 
-                        stroke="currentColor" 
-                        class="w-5 h-5 text-white transition-transform duration-300"
-                        :class="{ 'rotate-180': isFaqSectionOpen.donor }">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                    </svg>
-                </div>
-                <transition name="slide">
-                    <div v-show="isFaqSectionOpen.donor" class="p-4 overflow-hidden">
-                        <div 
-                            v-for="(faq, index) in faqs.donor" 
-                            :key="faq.id"
-                            class="mb-4 last:mb-0">
-                            <div 
-                                @click="toggleFaqItem('donor', index)"
-                                class="flex justify-between items-start cursor-pointer p-3 hover:bg-gray-50 rounded-md transition-colors">
-                                <h5 class="text-base font-medium text-gray-900 flex-1 pr-4">
-                                    {{ faq.question }}
-                                </h5>
-                                <svg 
-                                    xmlns="http://www.w3.org/2000/svg" 
-                                    fill="none" 
-                                    viewBox="0 0 24 24" 
-                                    stroke-width="2" 
-                                    stroke="currentColor" 
-                                    class="w-5 h-5 text-gray-500 transition-transform duration-300 flex-shrink-0"
-                                    :class="{ 'rotate-180': openFaqItems.donor[index] }">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                </svg>
-                            </div>
-                            <transition name="slide">
-                                <div v-show="openFaqItems.donor[index]" class="px-3 pb-3 overflow-hidden">
-                                    <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{{ faq.answer }}</p>
-                                </div>
-                            </transition>
-                        </div>
-                    </div>
-                </transition>
-            </div>
-
-            <!-- FAQ for Beneficiaries -->
-            <div v-if="faqs.beneficiary.length > 0" class="bg-white rounded-lg overflow-hidden shadow-3xl">
-                <div
-                    @click="toggleFaqSection('beneficiary')"
-                    class="px-4 py-3 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md cursor-pointer hover:opacity-90 transition-opacity flex justify-between items-center">
-                    <h4 class="text-white">FAQ for the Beneficiary</h4>
-                    <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        stroke-width="2" 
-                        stroke="currentColor" 
-                        class="w-5 h-5 text-white transition-transform duration-300"
-                        :class="{ 'rotate-180': isFaqSectionOpen.beneficiary }">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                    </svg>
-                </div>
-                <transition name="slide">
-                    <div v-show="isFaqSectionOpen.beneficiary" class="p-4 overflow-hidden">
-                        <div 
-                            v-for="(faq, index) in faqs.beneficiary" 
-                            :key="faq.id"
-                            class="mb-4 last:mb-0">
-                            <div 
-                                @click="toggleFaqItem('beneficiary', index)"
-                                class="flex justify-between items-start cursor-pointer p-3 hover:bg-gray-50 rounded-md transition-colors">
-                                <h5 class="text-base font-medium text-gray-900 flex-1 pr-4">
-                                    {{ faq.question }}
-                                </h5>
-                                <svg 
-                                    xmlns="http://www.w3.org/2000/svg" 
-                                    fill="none" 
-                                    viewBox="0 0 24 24" 
-                                    stroke-width="2" 
-                                    stroke="currentColor" 
-                                    class="w-5 h-5 text-gray-500 transition-transform duration-300 flex-shrink-0"
-                                    :class="{ 'rotate-180': openFaqItems.beneficiary[index] }">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                </svg>
-                            </div>
-                            <transition name="slide">
-                                <div v-show="openFaqItems.beneficiary[index]" class="px-3 pb-3 overflow-hidden">
-                                    <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{{ faq.answer }}</p>
-                                </div>
-                            </transition>
-                        </div>
-                    </div>
-                </transition>
-            </div>
-        </div>
-        <div class="text-right py-2 text-red-500 text-lg">
+        <div class="text-right mt-4 py-2 text-red-500 text-lg">
             <span class="text-red-500">*</span> {{
                 JSON.parse(coffee_wall_setting)[
                 "coffee_on_wall_required_field"
@@ -115,7 +21,7 @@
                 ?? ""
             }}
         </div>
-            <div class="bg-white rounded-lg overflow-hidden shadow-3xl my-6">
+            <div class="bg-white rounded-lg overflow-hidden shadow-3xl mb-6">
                 <div
                     class="px-4 py-1.5 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md">
                     <h4 class="text-white">
@@ -263,11 +169,11 @@
                     <div class="my-4 grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div v-for="beneficiary in beneficiaries" :key="beneficiary.id">
                             <div class="bg-gray-50 rounded-md border shadow text-base md:text-lg font-FuturaMdCnBT flex items-center justify-center h-12 hover:shadow-md border-gray-100 cursor-pointer hover:border-2 hover:border-green-500"
-                                :class="form.beneficiary_id == beneficiary.id
+                                :class="isBeneficiarySelected(beneficiary.id)
                                         ? 'border-2 border-green-500 text-green-500'
                                         : ''
                                     " @click.prevent="
-                                    updateBeneficiary(beneficiary)
+                                    toggleBeneficiary(beneficiary)
                                     ">
                                 <span>
                                     {{ beneficiary.name }}
@@ -275,7 +181,7 @@
                             </div>
                         </div>
                     </div>
-                    <Error v-if="submitted" fieldName="beneficiary_id" :validationErros="validationErros" full_width="1" />
+                    <Error v-if="submitted" fieldName="beneficiary_ids" :validationErros="validationErros" full_width="1" />
                 </div>
             </div>  
             <div class="bg-white rounded-lg overflow-hidden shadow-3xl my-6">
@@ -492,6 +398,110 @@
                     {{ JSON.parse(coffee_wall_setting)["pay_label"] ?? 'Pay' }}
                 </button>
             </div>
+
+            <!-- FAQ Sections -->
+            <div class="mt-12 space-y-4" v-if="faqs.donor.length > 0 || faqs.beneficiary.length > 0">
+                <!-- FAQ for Donors -->
+                <div v-if="faqs.donor.length > 0" class="bg-white rounded-lg overflow-hidden shadow-3xl">
+                    <div
+                        @click="toggleFaqSection('donor')"
+                        class="px-4 py-3 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md cursor-pointer hover:opacity-90 transition-opacity flex justify-between items-center">
+                        <h4 class="text-white">FAQ for the Donors</h4>
+                        <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke-width="2" 
+                            stroke="currentColor" 
+                            class="w-5 h-5 text-white transition-transform duration-300"
+                            :class="{ 'rotate-180': isFaqSectionOpen.donor }">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                    <transition name="slide">
+                        <div v-show="isFaqSectionOpen.donor" class="p-4 overflow-hidden">
+                            <div 
+                                v-for="(faq, index) in faqs.donor" 
+                                :key="faq.id"
+                                class="last:mb-0">
+                                <div 
+                                    @click="toggleFaqItem('donor', index)"
+                                    class="flex justify-between items-start cursor-pointer p-3 hover:bg-gray-50 rounded-md transition-colors">
+                                    <h5 class="font-medium text-gray-900 flex-1 pr-4">
+                                        {{ faq.question }}
+                                    </h5>
+                                    <svg 
+                                        xmlns="http://www.w3.org/2000/svg" 
+                                        fill="none" 
+                                        viewBox="0 0 24 24" 
+                                        stroke-width="2" 
+                                        stroke="currentColor" 
+                                        class="w-5 h-5 text-gray-500 transition-transform duration-300 flex-shrink-0"
+                                        :class="{ 'rotate-180': openFaqItems.donor[index] }">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                    </svg>
+                                </div>
+                                <transition name="slide">
+                                    <div v-show="openFaqItems.donor[index]" class="px-3 pb-3 overflow-hidden">
+                                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{{ faq.answer }}</p>
+                                    </div>
+                                </transition>
+                            </div>
+                        </div>
+                    </transition>
+                </div>
+
+                <!-- FAQ for Beneficiaries -->
+                <div v-if="faqs.beneficiary.length > 0" class="bg-white rounded-lg overflow-hidden shadow-3xl">
+                    <div
+                        @click="toggleFaqSection('beneficiary')"
+                        class="px-4 py-3 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md cursor-pointer hover:opacity-90 transition-opacity flex justify-between items-center">
+                        <h4 class="text-white">FAQ for the Beneficiary</h4>
+                        <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke-width="2" 
+                            stroke="currentColor" 
+                            class="w-5 h-5 text-white transition-transform duration-300"
+                            :class="{ 'rotate-180': isFaqSectionOpen.beneficiary }">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                    <transition name="slide">
+                        <div v-show="isFaqSectionOpen.beneficiary" class="p-4 overflow-hidden">
+                            <div 
+                                v-for="(faq, index) in faqs.beneficiary" 
+                                :key="faq.id"
+                                class="last:mb-0">
+                                <div 
+                                    @click="toggleFaqItem('beneficiary', index)"
+                                    class="flex justify-between items-start cursor-pointer p-3 hover:bg-gray-50 rounded-md transition-colors">
+                                    <h5 class="font-medium text-gray-900 flex-1 pr-4">
+                                        {{ faq.question }}
+                                    </h5>
+                                    <svg 
+                                        xmlns="http://www.w3.org/2000/svg" 
+                                        fill="none" 
+                                        viewBox="0 0 24 24" 
+                                        stroke-width="2" 
+                                        stroke="currentColor" 
+                                        class="w-5 h-5 text-gray-500 transition-transform duration-300 flex-shrink-0"
+                                        :class="{ 'rotate-180': openFaqItems.beneficiary[index] }">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                    </svg>
+                                </div>
+                                <transition name="slide">
+                                    <div v-show="openFaqItems.beneficiary[index]" class="px-3 pb-3 overflow-hidden">
+                                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{{ faq.answer }}</p>
+                                    </div>
+                                </transition>
+                            </div>
+                        </div>
+                    </transition>
+                </div>
+            </div>
+
         </div>
         <div v-if="loading">
             <div id="form_preloader">
@@ -557,7 +567,7 @@ export default {
                 email: "",
                 phone: "",
                 package_id: "",
-                beneficiary_id: "",
+                beneficiary_ids: [],
                 order_amount: 0,
                 custom_amount: "",
                 frequency: "monthly",
@@ -573,6 +583,7 @@ export default {
             premiumPackage: [],
             packages: [],
             beneficiaries: [],
+            allBeneficiaryId: null,
             faqs: {
                 donor: [],
                 beneficiary: []
@@ -600,7 +611,36 @@ export default {
         // Load form data from localStorage
         const savedForm = localStorage.getItem("event_signup_form");
         if (savedForm) {
-            this.form = JSON.parse(savedForm);
+            try {
+                const parsedForm = JSON.parse(savedForm);
+                if (parsedForm && typeof parsedForm === 'object') {
+                    let beneficiaryIds = [];
+
+                    if (Array.isArray(parsedForm.beneficiary_ids)) {
+                        beneficiaryIds = parsedForm.beneficiary_ids.map(Number).filter(Boolean);
+                    } else if (parsedForm.beneficiary_ids) {
+                        beneficiaryIds = [Number(parsedForm.beneficiary_ids)];
+                    } else if (parsedForm.beneficiary_id) {
+                        beneficiaryIds = [Number(parsedForm.beneficiary_id)];
+                    }
+
+                    delete parsedForm.beneficiary_id;
+
+                    this.form = {
+                        ...this.form,
+                        ...parsedForm,
+                        beneficiary_ids: beneficiaryIds,
+                    };
+
+                    if (this.form.beneficiary_ids.length === 0 && this.allBeneficiaryId) {
+                        this.form.beneficiary_ids = [this.allBeneficiaryId];
+                    }
+
+                    this.ensureBeneficiarySelection();
+                }
+            } catch (error) {
+                console.error('Error parsing saved Coffee Wall form data:', error);
+            }
         }
     },
     watch: {
@@ -717,6 +757,7 @@ export default {
             this.form["email"] = "";
             this.form["phone"] = "";
             this.form["card_holder_name"] = null;
+            this.form["beneficiary_ids"] = this.allBeneficiaryId ? [this.allBeneficiaryId] : [];
 
             this.validationErros = new ErrorHandling();
             localStorage.removeItem("event_signup_form");
@@ -875,8 +916,98 @@ export default {
             this.form.package_id = null; // Unselect package when custom amount entered
             this.form.order_amount = this.form.custom_amount; // Unselect package when custom amount entered
         },
-        updateBeneficiary(beneficiary) {
-            this.form.beneficiary_id = beneficiary.id;
+        toggleBeneficiary(beneficiary) {
+            if (!beneficiary || !beneficiary.id) {
+                return;
+            }
+
+            const id = Number(beneficiary.id);
+            const allId = Number(this.allBeneficiaryId);
+
+            if (!Array.isArray(this.form.beneficiary_ids)) {
+                this.form.beneficiary_ids = [];
+            }
+
+            // If "All" is selected, reset to only that option.
+            if (allId && id === allId) {
+                this.form.beneficiary_ids = [allId];
+                this.clearErrors('beneficiary_ids');
+                return;
+            }
+
+            const existingIndex = this.form.beneficiary_ids.findIndex(
+                (selectedId) => Number(selectedId) === id
+            );
+
+            if (existingIndex > -1) {
+                this.form.beneficiary_ids.splice(existingIndex, 1);
+            } else {
+                this.form.beneficiary_ids.push(id);
+            }
+
+            this.form.beneficiary_ids = this.form.beneficiary_ids
+                .map((selectedId) => Number(selectedId))
+                .filter((value, index, self) => self.indexOf(value) === index);
+
+            // Ensure "All" is deselected when other beneficiaries are chosen.
+            if (allId) {
+                this.form.beneficiary_ids = this.form.beneficiary_ids.filter(
+                    (selectedId) => selectedId !== allId || this.form.beneficiary_ids.length === 1
+                );
+
+                if (
+                    this.form.beneficiary_ids.length === 0 ||
+                    (this.form.beneficiary_ids.length === 1 && this.form.beneficiary_ids[0] === allId)
+                ) {
+                    this.form.beneficiary_ids = [allId];
+                }
+
+                if (this.form.beneficiary_ids.length > 1) {
+                    this.form.beneficiary_ids = this.form.beneficiary_ids.filter(
+                        (selectedId) => selectedId !== allId
+                    );
+                }
+            }
+
+            if (this.form.beneficiary_ids.length === 0 && allId) {
+                this.form.beneficiary_ids = [allId];
+            }
+
+            this.ensureBeneficiarySelection();
+            this.clearErrors('beneficiary_ids');
+        },
+        isBeneficiarySelected(id) {
+            if (!Array.isArray(this.form.beneficiary_ids)) {
+                return false;
+            }
+
+            return this.form.beneficiary_ids.map(Number).includes(Number(id));
+        },
+        ensureBeneficiarySelection() {
+            if (!Array.isArray(this.form.beneficiary_ids)) {
+                this.form.beneficiary_ids = [];
+            }
+
+            this.form.beneficiary_ids = this.form.beneficiary_ids
+                .map((id) => Number(id))
+                .filter((id, index, self) => !Number.isNaN(id) && self.indexOf(id) === index);
+
+            const allId = Number(this.allBeneficiaryId);
+
+            if (!allId) {
+                return;
+            }
+
+            const hasAllSelected = this.form.beneficiary_ids.includes(allId);
+
+            if (hasAllSelected && this.form.beneficiary_ids.length > 1) {
+                this.form.beneficiary_ids = this.form.beneficiary_ids.filter((id) => id !== allId);
+                return;
+            }
+
+            if (this.form.beneficiary_ids.length === 0) {
+                this.form.beneficiary_ids = [allId];
+            }
         },
         handleGalleryImagesInit() {
             setOptions({
@@ -1046,13 +1177,11 @@ export default {
             .then((res) => {
                 if (res.data.status == "Success") {
                     this.beneficiaries = res.data.data;
-                    // Set "All" as default beneficiary if it exists and no beneficiary is selected
-                    if (!this.form.beneficiary_id || this.form.beneficiary_id === "") {
-                        const allBeneficiary = this.beneficiaries.find(b => b.name.toLowerCase() === 'all');
-                        if (allBeneficiary) {
-                            this.form.beneficiary_id = allBeneficiary.id;
-                        }
-                    }
+                    const allBeneficiary = this.beneficiaries.find(
+                        (b) => typeof b.name === 'string' && b.name.toLowerCase() === 'all'
+                    );
+                    this.allBeneficiaryId = allBeneficiary ? Number(allBeneficiary.id) : null;
+                    this.ensureBeneficiarySelection();
                 }
             });
 

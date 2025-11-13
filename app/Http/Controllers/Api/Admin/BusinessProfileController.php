@@ -206,7 +206,7 @@ class BusinessProfileController extends Controller
             "customer_id" => $customerId,
             'customer_profile_id' => $customerProfile->id,
         ]);
-        return $this->successResponse([], 'Business profile has been created successfully!');
+        return $this->successResponse([], 'Your exporter profile has been created successfully!');
     }
 
     public function update(Request $request, $id)
@@ -416,14 +416,14 @@ class BusinessProfileController extends Controller
             "customer_id" => $customerId ?? $profile->customer_id,
             'customer_profile_id' => $request->id,
         ]);
-        return $this->successResponse([], 'Business profile has been updated successfully!');
+        return $this->successResponse([], 'Your exporter profile has been updated successfully!');
     }
 
     public function destroy(Request $request, $customerProfileId)
     {
         $customerProfile = CustomerProfile::whereId($customerProfileId)->firstOrFail();
         if ($customerProfile->customerBusinessCategory()->delete() && $customerProfile->customerMedia()->delete() && $customerProfile->customerSocialMedia()->delete() && $customerProfile->delete()) {
-            return $this->apiSuccessResponse(new CustomerProfileResource($customerProfile), 'Business profile has been deleted successfully.');
+            return $this->apiSuccessResponse(new CustomerProfileResource($customerProfile), 'Your exporter profile has been deleted successfully.');
         }
         return $this->errorResponse();
     }
@@ -526,7 +526,7 @@ class BusinessProfileController extends Controller
 
         $data = ['token' => $token, 'lang' => $defaultLang, 'email' => $customer->email, 'name' => $customer->name, 'reset_password' => 1];
 
-        Mail::to($customer->email)->send(new CustomerResetPasswordMail($data));
+        //----Mail::to($customer->email)->send(new CustomerResetPasswordMail($data));
 
         return $this->successResponse([], 'Password reset email has been sent successfully.');
     }

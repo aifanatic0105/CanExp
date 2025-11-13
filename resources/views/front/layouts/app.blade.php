@@ -191,10 +191,13 @@
 
     @if ($isMobile)
         <div
-            class="fixed bottom-0 left-0 right-0 flex items-center justify-between divide-x bg-white px-5 py-3 text-center shadow-lg">
+            class="fixed bottom-0 left-0 right-0 flex items-center justify-between bg-white px-5 py-3 text-center shadow-lg">
             @php
                 $homePageUrl = route('front.index');
                 $homePageUrl = langBasedURL($lang, $homePageUrl);
+
+                $coffeeOnTheWallUrl = route('coffee_on_wall');
+                $coffeeOnTheWallUrl = langBasedURL($lang, $coffeeOnTheWallUrl);
 
                 $signin_url = isset($general_setting['user_signin_page'])
                     ? route('front.index', $general_setting['user_signin_page'])
@@ -211,7 +214,7 @@
                 $search_url = route('user.search.advanceSearch');
                 $search_url = langBasedURL($lang, $search_url);
             @endphp
-            <a href="{{ $homePageUrl }}" class="mx-auto w-full text-center text-gray-700">
+            {{--<a href="{{ $homePageUrl }}" class="mx-auto w-full text-center text-gray-700">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="mx-auto h-5 w-5 text-gray-700">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -219,9 +222,18 @@
                 </svg>
                 <span
                     class="mt-0.5 text-sm">{{ isset($generalSetting['home_button_text']) ? $generalSetting['home_button_text'] : '' }}</span>
+            </a>--}}
+            <a href="{{ $coffeeOnTheWallUrl }}" class="mx-auto grow-1 text-center text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="mx-auto h-5 w-5 text-gray-700">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                </svg>
+                <span
+                    class="mt-0.5 text-sm">Coffee on the Wall</span>
             </a>
             @guest('customers')
-                <a href="{{ $signin_url }}" class="mx-auto w-full text-center text-gray-700">
+                <a href="{{ $signin_url }}" class="mx-auto grow-2 text-center text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="mx-auto h-5 w-5 text-gray-700">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -233,7 +245,7 @@
                 </a>
             @endguest
             @auth('customers')
-                <a href="{{ $profile_url }}" class="mx-auto w-full text-center text-gray-700">
+                <a href="{{ $profile_url }}" class="mx-auto grow-2 text-center text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="mx-auto h-5 w-5 text-gray-700">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -246,7 +258,7 @@
                 </a>
             @endauth
             @guest('customers')
-                <a href="{{ $signup_url }}" class="mx-auto w-full text-center text-gray-700">
+                <a href="{{ $signup_url }}" class="mx-auto grow-2 text-center text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="mx-auto h-5 w-5 text-gray-700">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -258,7 +270,7 @@
                 </a>
             @endguest
             @auth('customers')
-                <a href="#" class="mx-auto w-full text-center text-gray-700"
+                <a href="#" class="mx-auto grow-2 text-center text-gray-700"
                     onclick="event.preventDefault(); document.getElementById('user-logout-form').submit();">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="mx-auto h-5 w-5 text-gray-700">
@@ -272,7 +284,7 @@
                 </a>
             @endauth
 
-            <a href="{{ $search_url }}" class="mx-auto w-full text-center text-gray-700">
+            {{--<a href="{{ $search_url }}" class="mx-auto w-full text-center text-gray-700">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="mx-auto h-5 w-5 text-gray-700">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -282,7 +294,7 @@
 
                 <span
                     class="mt-0.5 text-sm">{{ isset($generalSetting['search_button_text']) ? $generalSetting['search_button_text'] : '' }}</span>
-            </a>
+            </a>--}}
         </div>
     @endif
 

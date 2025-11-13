@@ -43,7 +43,7 @@ class FinancingProgramController extends Controller
         // Send the email to each featured and premium exporter
         foreach ($featuredExporters as $exporter) {
             if ($exporter->customer && $exporter->customer->email) {
-                Mail::to($exporter->customer->email)->send(new FinancingProgramListMail($financingPrograms));
+                //----Mail::to($exporter->customer->email)->send(new FinancingProgramListMail($financingPrograms));
             }
         }
 

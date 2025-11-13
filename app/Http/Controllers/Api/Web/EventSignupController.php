@@ -47,11 +47,15 @@ class EventSignupController extends Controller
     {
         $request['business_categories_id'] = json_decode($request->business_categories_id);
         $request['gallery_images'] = isset($request->gallery_images) && $request->gallery_images != null ? json_decode($request->gallery_images) : null;
+        
+        // Check if user is already logged in or if email exists
+        $loggedInCustomer = \Illuminate\Support\Facades\Auth::guard('customers')->user();
+        $existingCustomer = Customer::where('email', $request->email)->first();
+        
         $validationRule = [
             'name' => ['required', 'string'],
             'business_name' => ['nullable', 'string'],
-            'email' => ['required', 'email', 'unique:App\Models\Customer,email'],
-            'password' => ['required', 'confirmed', RulesPassword::min(8)->mixedCase()],
+            'email' => ['required', 'email'], // REMOVED unique validation to allow existing emails
             'package_id' => ['required', 'exists:registration_packages,id'],
             'zipcode' => ['nullable'],
             'gallery_images' => ['required', 'array'],
@@ -75,6 +79,11 @@ class EventSignupController extends Controller
             // 'contacts.*.designation' => 'required|string|max:255',
             'contacts.*.image_path' => 'nullable|string|max:255',
         ];
+        
+        // Password only required for NEW users (not logged in AND email doesn't exist)
+        if (!$loggedInCustomer && !$existingCustomer) {
+            $validationRule['password'] = ['required', 'confirmed', RulesPassword::min(8)->mixedCase()];
+        }
         $niceNames = [];
         $defaultLang = getDefaultLanguage(1);
         if ($defaultLang) {
@@ -172,32 +181,67 @@ class EventSignupController extends Controller
         );
 
         try {
-            $activeEmailUrl = Hash::make($request->email);
-            $customer = Customer::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'business_name' => $request->business_name,
-                'is_active' => 1,
-                'password' => Hash::make($request->password),
-                'type' => 'event',
-                'active_email_url' => $activeEmailUrl,
-                'registration_package_id' => $request->package_id,
-                'package_price' => $price,
-                'package_subscribed_date' => date('Y-m-d'),
-                'package_expiry_date' => $package_validity ?? date('Y-m-d'),
-                'is_package_amount_paid' => 0,
-                'events_allowed' => $eventsAllowed,
-                'events_remaining' => $eventsAllowed - 1,
-                'images_allowed' => $package->images_allowed ?? 0,
-            ]);
-
-            CustomerProfile::create([
-                'customer_id' => $customer->id,
-                'company_name' => $request->business_name,
-                'slug' => $this->generateUniqueSlug($request->business_name),
-            ]);
-            CustomerSocialMedia::create(['customer_id' => $customer->id, 'facebook' => $request->facebook_url, 'twitter' => $request->twitter_url, 'linkedin' => $request->linkedin_url, 'youtube' => $request->youtube_url, 'pintrest' => $request->pintrest_url, 'instagram' => $request->instagram_url, 'snapchat' => $request->snapchat_url]);
-            CustomerMedia::create(['customer_id' => $customer->id]);
+            // Use logged-in customer or check by email
+            $customer = null;
+            $sendWelcomeEmail = false;
+            $isNewCustomer = false;
+            
+            if ($loggedInCustomer) {
+                // User is already logged in - use their account for additional event
+                $customer = $loggedInCustomer;
+                Log::info('Logged-in customer creating additional event', ['customer_id' => $customer->id]);
+            } else {
+                // Not logged in - check if email exists
+                $customer = $existingCustomer;
+                
+                if (!$customer) {
+                    // Create new customer account for first-time event creators
+                    $activeEmailUrl = Hash::make($request->email);
+                    $customer = Customer::create([
+                        'name' => $request->name,
+                        'email' => $request->email,
+                        'business_name' => $request->business_name,
+                        'is_active' => 1,
+                        'password' => Hash::make($request->password),
+                        'type' => 'event',
+                        'active_email_url' => $activeEmailUrl,
+                        'registration_package_id' => $request->package_id,
+                        'package_price' => $price,
+                        'package_subscribed_date' => date('Y-m-d'),
+                        'package_expiry_date' => $package_validity ?? date('Y-m-d'),
+                        'is_package_amount_paid' => 0,
+                        'events_allowed' => $eventsAllowed,
+                        'events_remaining' => $eventsAllowed - 1,
+                        'images_allowed' => $package->images_allowed ?? 0,
+                    ]);
+                    $sendWelcomeEmail = true;
+                    $isNewCustomer = true;
+                    Log::info('New event customer created', ['customer_id' => $customer->id]);
+                    
+                    // Create profile for new customer
+                    CustomerProfile::create([
+                        'customer_id' => $customer->id,
+                        'company_name' => $request->business_name,
+                        'slug' => $this->generateUniqueSlug($request->business_name),
+                    ]);
+                    CustomerSocialMedia::create(['customer_id' => $customer->id, 'facebook' => $request->facebook_url, 'twitter' => $request->twitter_url, 'linkedin' => $request->linkedin_url, 'youtube' => $request->youtube_url, 'pintrest' => $request->pintrest_url, 'instagram' => $request->instagram_url, 'snapchat' => $request->snapchat_url]);
+                    CustomerMedia::create(['customer_id' => $customer->id]);
+                } else {
+                    // Email exists - allow user to create event with existing email
+                    Log::info('Using existing customer email for new event', ['customer_id' => $customer->id]);
+                    $isNewCustomer = false;
+                    // Update event-related fields for existing customer
+                    $customer->update([
+                        'registration_package_id' => $request->package_id,
+                        'package_price' => $price,
+                        'package_subscribed_date' => date('Y-m-d'),
+                        'package_expiry_date' => $package_validity ?? date('Y-m-d'),
+                        'is_package_amount_paid' => 0,
+                        'events_allowed' => $eventsAllowed,
+                        'events_remaining' => max(0, ($customer->events_remaining ?? 0)),
+                    ]);
+                }
+            }
 
             if (isset($request->gallery_images)) {
                 $galleryImages = $this->moveFile($request->gallery_images, 'media/events', 'events');
@@ -299,15 +343,18 @@ class EventSignupController extends Controller
             if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
                 $to_email = $adminEmailsArr[0];
                 unset($adminEmailsArr[0]);
-                Mail::to($to_email)->cc($adminEmailsArr)->send(new NewCustomerAdminMail($data));
+                //----Mail::to($to_email)->cc($adminEmailsArr)->send(new NewCustomerAdminMail($data));
             } else {
                 $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
                 if ($to_email) {
-                    Mail::to($to_email)->send(new NewCustomerAdminMail($data));
+                    //----Mail::to($to_email)->send(new NewCustomerAdminMail($data));
                 }
             }
 
-            Mail::to($request->email)->send(new CustomerVerifyEmailMail($data));
+            // Only send verification email to new customers
+            if ($isNewCustomer) {
+                //----Mail::to($request->email)->send(new CustomerVerifyEmailMail($data));
+            }
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
         }
@@ -524,7 +571,7 @@ class EventSignupController extends Controller
             }
 
             $data = ['customer' => $customer, 'event_name' => $event->eventDetail[0]->title, 'package_name' => isset($package->registrationPackageDetail[0]) ? $package->registrationPackageDetail[0]->name : '', 'package_price' => $price];
-            Mail::to($request->email)->send(new WelcomeEventMail($data));
+            //----Mail::to($request->email)->send(new WelcomeEventMail($data));
 
             if ($totalAmount > 0) {
                 $order = Order::create([
@@ -550,7 +597,7 @@ class EventSignupController extends Controller
 
                 $PDFService->createRegistrationInvoicePDF(null, $data);
 
-                Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
+                //----Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
             } else {
                 $order = Order::create([
                     'registration_package_id' => $package->id,
@@ -571,7 +618,7 @@ class EventSignupController extends Controller
 
                 $PDFService->createRegistrationInvoicePDF(null, $data);
 
-                Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
+                //----Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
             }
             
             Log::info('===== Event Signup Payment Completed Successfully =====');
@@ -646,8 +693,9 @@ class EventSignupController extends Controller
 
     public function emailValidation(Request $request)
     {
+        // REMOVED unique email validation - users can use any email even if it exists
         $validationRule = [
-            'email' => ['required', 'email', 'unique:App\Models\Customer,email'],
+            'email' => ['required', 'email'],
         ];
         $defaultLang = getDefaultLanguage(1);
         $niceNames = [];

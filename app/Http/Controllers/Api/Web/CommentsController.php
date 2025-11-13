@@ -49,16 +49,16 @@ class CommentsController extends Controller
         if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
             $to_email = $adminEmailsArr[0];
             unset($adminEmailsArr[0]);
-            Mail::to($to_email)->cc($adminEmailsArr)->send(new CommentsMail($data));
+            //----Mail::to($to_email)->cc($adminEmailsArr)->send(new CommentsMail($data));
         } else {
             $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
             if ($to_email) {
-                Mail::to($to_email)->send(new CommentsMail($data));
+                //----Mail::to($to_email)->send(new CommentsMail($data));
             }
         }
 
-        // Mail::to($request->email)->send(new CommentResponseMail([]));
-        Mail::to($request->email)->send(new CommentResponseMail(['name' => $request->name]));
+        // //----Mail::to($request->email)->send(new CommentResponseMail([]));
+        //----Mail::to($request->email)->send(new CommentResponseMail(['name' => $request->name]));
 
 
         ContactForm::create([

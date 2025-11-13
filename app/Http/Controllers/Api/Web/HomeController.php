@@ -74,7 +74,8 @@ class HomeController extends Controller
             'email' => $request->anonymous ? 'nullable' : 'required',
             'payment_method' => 'required|in:stripe,paypal',
             'package_id' => $request->custom_amount ? 'nullable' : 'required|exists:coffee_wall_packages,id',
-            'beneficiary_id' => 'required|exists:coffee_wall_beneficiaries,id',
+            'beneficiary_ids' => 'required|array|min:1',
+            'beneficiary_ids.*' => 'distinct|exists:coffee_wall_beneficiaries,id',
             'agree_terms' => 'required',
             'non_refundable_agreement' => 'required|accepted',
             'terms_privacy_agreement' => 'required|accepted',
@@ -92,7 +93,7 @@ class HomeController extends Controller
                 'name' => isset($coffee_wall_setting['name_error']) ? $coffee_wall_setting['name_error'] : '',
                 'email' => isset($coffee_wall_setting['email_error']) ? $coffee_wall_setting['email_error'] : '',
                 'package_id' => isset($coffee_wall_setting['package_error']) ? $coffee_wall_setting['package_error'] : '',
-                'beneficiary_id' => isset($coffee_wall_setting['beneficiary_error']) ? $coffee_wall_setting['beneficiary_error'] : 'Please select a beneficiary',
+                'beneficiary_ids' => isset($coffee_wall_setting['beneficiary_error']) ? $coffee_wall_setting['beneficiary_error'] : 'Please select at least one beneficiary',
                 'agree_terms' => isset($coffee_wall_setting['agree_terms_error']) ? $coffee_wall_setting['agree_terms_error'] : '',
                 'card_holder_name' => isset($payment_setting['cardholder_name_error']) ? $payment_setting['cardholder_name_error'] : '',
                 'non_refundable_agreement' => 'You must agree that your contribution is non-refundable',
@@ -133,6 +134,11 @@ class HomeController extends Controller
             ]);
             throw $e;
         }
+
+        $beneficiaryIds = collect($request->input('beneficiary_ids', []))
+            ->filter()
+            ->unique()
+            ->values();
 
         if ($request->package_id) {
             $package = CoffeeWallPackage::whereId($request->package_id)->first();
@@ -449,14 +455,14 @@ class HomeController extends Controller
                         'email_address' => $request->email,
                     ],
                     'application_context' => [
-                        'return_url' => route('paypal.subscription.success.coffee_wall', [
+                'return_url' => route('paypal.subscription.success.coffee_wall', [
                             'name' => $request->name,
                             'email' => $request->email,
                             'package_id' => $package->id,
                             'phone' => $request->phone ?? null,
                             'anonymous' => $request->anonymous ?? null,
                             'frequency' => $request->frequency ?? null,
-                            'beneficiary_id' => $request->beneficiary_id
+                            'beneficiary_ids' => $beneficiaryIds->implode(',')
                         ]),
                         'cancel_url' => route('paypal.cancel')
                     ],
@@ -509,16 +515,15 @@ class HomeController extends Controller
                 Log::error('PayPal subscription failed with unknown status');
                 return $this->errorResponse();
             }
-
-            Log::info('Creating CoffeeWallet record', [
-                'name' => $request->name,
-                'email' => $request->email,
-                'package_id' => $package->id,
-                'beneficiary_id' => $request->beneficiary_id,
-                'frequency' => $request->frequency,
-                'dr_amount' => $package_price,
-                'payment_method' => $package_price > 0 ? $request->payment_method : null,
-            ]);
+        Log::info('Creating CoffeeWallet record', [
+            'name' => $request->name,
+            'email' => $request->email,
+            'package_id' => $package->id,
+            'beneficiary_ids' => $beneficiaryIds->toArray(),
+            'frequency' => $request->frequency,
+            'dr_amount' => $package_price,
+            'payment_method' => $package_price > 0 ? $request->payment_method : null,
+        ]);
 
             $coffee_wallet = CoffeeWallet::create([
                 'name' => $request->name,
@@ -527,7 +532,7 @@ class HomeController extends Controller
                 'anonymous' => $request->anonymous ? $request->anonymous : 0,
                 'notify_when_used' => $request->notify_when_used ? $request->notify_when_used : 0,
                 'package_id' => $package->id,
-                'beneficiary_id' => $request->beneficiary_id,
+            'beneficiary_id' => $beneficiaryIds->first(),
                 'frequency' => $request->frequency ? $request->frequency : null,
                 'dr_amount' => $package_price,
                 'paypal_id' => null,
@@ -536,6 +541,10 @@ class HomeController extends Controller
                 'payment_method' => $package_price > 0 ? $request->payment_method : null,
                 'status' => 'completed',
             ]);
+
+        if ($beneficiaryIds->isNotEmpty()) {
+            $coffee_wallet->beneficiaries()->sync($beneficiaryIds->all());
+        }
 
             Log::info('CoffeeWallet created successfully', [
                 'coffee_wallet_id' => $coffee_wallet->id,

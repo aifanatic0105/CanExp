@@ -14,7 +14,7 @@ class CoffeeWalletsController extends Controller
 
     public function index()
     {
-        $coffee_wallets = CoffeeWallet::with(['userInfo:id,name,email', 'beneficiary:id,name']);
+        $coffee_wallets = CoffeeWallet::with(['userInfo:id,name,email', 'beneficiaries:id,name']);
 
         if (isset($_GET['searchParam']) && $_GET['searchParam'] != '') {
             $coffee_wallets = $coffee_wallets->whereHas('visitor', function ($q) {

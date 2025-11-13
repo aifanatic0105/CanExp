@@ -48,15 +48,15 @@ class ContactUsController extends Controller
         if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
             $to_email = $adminEmailsArr[0];
             unset($adminEmailsArr[0]);
-            Mail::to($to_email)->cc($adminEmailsArr)->send(new ContactUsMail($data));
+            //----Mail::to($to_email)->cc($adminEmailsArr)->send(new ContactUsMail($data));
         } else {
             $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
             if ($to_email) {
-                Mail::to($to_email)->send(new ContactUsMail($data));
+                //----Mail::to($to_email)->send(new ContactUsMail($data));
             }
         }
 
-        Mail::to($request->email)->send(new AutoResponseToCustomerMail([]));
+        //----Mail::to($request->email)->send(new AutoResponseToCustomerMail([]));
 
         ContactForm::create([
             'email_sent_by' => Auth::guard('customers')->check() ? Auth::guard('customers')->user()->id : null,

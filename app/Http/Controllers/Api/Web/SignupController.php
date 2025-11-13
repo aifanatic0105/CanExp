@@ -38,10 +38,12 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\Rules\Password;
 
@@ -56,17 +58,24 @@ class SignupController extends Controller
 
         $request['business_categories_id'] = json_decode($request->business_categories_id);
         $request['gallery_images'] = json_decode($request->gallery_images);
+        
+        // Check if user is logged in or if email exists
+        $loggedInCustomer = Auth::guard('customers')->user();
+        $existingCustomer = Customer::where('email', $request->email)
+            ->where('is_account_closed', 0)
+            ->whereNull('deleted_at')
+            ->first();
+        
         $validationRule = [
             'payment_frequency' => ['required', 'in:monthly,quarterly,semi_annually,annually'],
             'registration_package_id' => ['required', 'exists:App\Models\RegistrationPackage,id'],
             'is_auto_renew' => ['nullable'],
             'name' => ['required', 'string'],
-            'email' => ['required', 'email', 'unique:App\Models\Customer,email'],
-            'password' => ['required', 'confirmed', Password::min(8)->mixedCase()],
+            'email' => ['required', 'email'], // REMOVED unique validation to allow existing emails
             'business_categories_id' => ['required', 'array', 'max:3'],
             'business_categories_id.*' => ['required', 'exists:App\Models\BusinessCategory,id'],
             'customer_profile_company_name' => ['required', 'string'],
-            'customer_profile_company_email' => ['required', 'email', 'unique:App\Models\CustomerProfile,company_email'],
+            'customer_profile_company_email' => ['required', 'email'], // REMOVED unique validation
             'customer_profile_address' => ['required', 'string', new MaxLines(5)],
             'customer_profile_phone' => ['required', 'string'],
             'customer_profile_cta_btn' => ['nullable', 'string'],
@@ -88,6 +97,11 @@ class SignupController extends Controller
             'customer_social_media_social_media5' => ['nullable', new ValidUrl()],
             'is_agree' => ['required', 'accepted'],
         ];
+        
+        // Password only required for NEW users (not logged in AND email doesn't exist)
+        if (!$loggedInCustomer && !$existingCustomer) {
+            $validationRule['password'] = ['required', 'confirmed', Password::min(8)->mixedCase()];
+        }
         $defaultLang = getDefaultLanguage(1);
         if ($defaultLang) {
             App::setLocale($defaultLang->abbreviation);
@@ -141,6 +155,15 @@ class SignupController extends Controller
             $messages,
             $niceNames
         );
+        
+        // Check for closed customer accounts
+        $existingClosedCustomer = null;
+        if ($request->filled('email')) {
+            $existingClosedCustomer = Customer::where('email', $request->email)
+                ->where('is_account_closed', 1)
+                ->first();
+        }
+        
         $package = getRegistrationPackage($request->registration_package_id);
         DB::beginTransaction();
         try {
@@ -170,7 +193,7 @@ class SignupController extends Controller
             $activeEmailUrl = Hash::make($request->email);
             $subscribeHash = Hash::make($request->email);
             $subscribeHash = str_replace('===', '/', $subscribeHash);
-            $customer = Customer::create([
+            $customerData = [
                 'name' => $request->name,
                 'email' => $request->email,
                 'is_auto_renew' => isset($request->is_auto_renew) && $request->is_auto_renew == 'true' ? 1 : 0,
@@ -189,8 +212,51 @@ class SignupController extends Controller
                 'images_allowed' => isset($package) ? $package->images_allowed : 0,
                 'is_subscribe' => 1, // Default to subscribed
                 'subscribe_hash' => $subscribeHash, // Same format as InfoLetter
+                'is_account_closed' => 0,
+                'verify_customer_email' => 0,
+                'active_account_url' => null,
+            ];
 
-            ]);
+            // Determine which customer to use
+            $customer = null;
+            $isNewCustomer = false;
+            
+            if ($loggedInCustomer) {
+                // User is logged in - use their account
+                $customer = $loggedInCustomer;
+                // Update customer with new package info
+                $customer->update($customerData);
+                Log::info('Logged-in customer creating exporter profile', ['customer_id' => $customer->id]);
+            } elseif ($existingClosedCustomer) {
+                // Reactivating a closed account
+                $existingClosedCustomer->update($customerData);
+                $customer = $existingClosedCustomer->fresh();
+
+                CustomerProfile::withTrashed()->where('customer_id', $customer->id)->forceDelete();
+
+                $existingMediaIds = CustomerMedia::where('customer_id', $customer->id)->pluck('id');
+                if ($existingMediaIds->count()) {
+                    CustomerGalleryImage::whereIn('customer_media_id', $existingMediaIds)->delete();
+                }
+                CustomerMedia::where('customer_id', $customer->id)->delete();
+                CustomerBusinessCategory::where('customer_id', $customer->id)->delete();
+                CustomerSocialMedia::where('customer_id', $customer->id)->delete();
+                
+                Log::info('Reactivated closed customer account', ['customer_id' => $customer->id]);
+            } elseif ($existingCustomer) {
+                // Email exists and account is active - use existing customer
+                $customer = $existingCustomer;
+                // Update with new package info and exporter type
+                $customer->update(array_merge($customerData, [
+                    'type' => 'customer', // Change type to customer (exporter)
+                ]));
+                Log::info('Using existing customer email for exporter profile', ['customer_id' => $customer->id]);
+            } else {
+                // Create new customer
+                $customer = Customer::create($customerData);
+                $isNewCustomer = true;
+                Log::info('New exporter customer created', ['customer_id' => $customer->id]);
+            }
 
             $customerProfile = CustomerProfile::create([
                 'company_name' => $request->customer_profile_company_name,
@@ -274,15 +340,17 @@ class SignupController extends Controller
             if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
                 $to_email = $adminEmailsArr[0];
                 unset($adminEmailsArr[0]);
-                Mail::to($to_email)->cc($adminEmailsArr)->send(new NewCustomerAdminMail($data));
+                //----Mail::to($to_email)->cc($adminEmailsArr)->send(new NewCustomerAdminMail($data));
             } else {
                 $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
                 if ($to_email) {
-                    Mail::to($to_email)->send(new NewCustomerAdminMail($data));
+                    //----Mail::to($to_email)->send(new NewCustomerAdminMail($data));
                 }
             }
-            // return $request->email;
-            Mail::to($request->email)->send(new CustomerVerifyEmailMail($data));
+            // Only send verification email to NEW customers
+            if ($isNewCustomer) {
+                // ----Mail::to($request->email)->send(new CustomerVerifyEmailMail($data));
+            }
 
             // if ($packagePrice <= 0) {
 
@@ -304,7 +372,7 @@ class SignupController extends Controller
 
             //     $PDFService->createRegistrationInvoicePDF(null, $data);
 
-            //     Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
+            //     //----Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
             // }
             DB::commit();
         } catch (Exception $e) {
@@ -363,6 +431,8 @@ class SignupController extends Controller
             'password' => ['required'],
         ], [], $niceNames);
 
+        $credentials['is_account_closed'] = 0;
+
 
         if (Auth::guard('customers')->attempt($credentials)) {
 
@@ -418,18 +488,7 @@ class SignupController extends Controller
             //         "email" => $errorMessage,
             //     ])->onlyInput("email");
             // }
-            else if (Auth::guard('customers')->user()->is_account_closed == '1') {
-                if (Auth::guard('customers')->check()) {
-                    Auth::guard('customers')->logout();
-                }
-                $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_43']);
-                $message_43 = isset($general_messages['message_43']) ? $general_messages['message_43'] : '';
-
-                $errorMessage = $message_43;
-                return back()->withErrors([
-                    "email" => $errorMessage,
-                ])->onlyInput("email");
-            } else if (Auth::guard('customers')->user()->is_active == '1') {
+            else if (Auth::guard('customers')->user()->is_active == '1') {
                 if (Session::has('url.intended')) {
                     $intendedUrl = Session::get('url.intended');
                     $parsedUrl = parse_url($intendedUrl, PHP_URL_PATH);
@@ -512,7 +571,7 @@ class SignupController extends Controller
 
 
         $data = ['token' => $token, 'lang' => $defaultLang, 'email' => $request->email, 'name' => $customer->name,];
-        Mail::to($request->email)->send(new CustomerResetPasswordMail($data));
+        //----Mail::to($request->email)->send(new CustomerResetPasswordMail($data));
 
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_51']);
         $message_51 = isset($general_messages['message_51']) ? $general_messages['message_51'] : '';
@@ -566,13 +625,13 @@ class SignupController extends Controller
     //         'email' => $request->email,
     //         'name' => $customer->name,
     //     ];
-    //     Mail::to($request->email)->send(new CustomerResetPasswordMail($data));
+    //     //----Mail::to($request->email)->send(new CustomerResetPasswordMail($data));
 
     //     // Send Confirmation Email for Successful Reset
     //     $confirmationEmailData = [
     //         'name' => $customer->name,
     //     ];
-    //     Mail::to($request->email)->send(new CustomerPasswordResetSuccessMail($confirmationEmailData));
+    //     //----Mail::to($request->email)->send(new CustomerPasswordResetSuccessMail($confirmationEmailData));
 
     //     $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_51']);
     //     $message_51 = isset($general_messages['message_51']) ? $general_messages['message_51'] : '';
@@ -701,7 +760,7 @@ class SignupController extends Controller
             ];
 
             // Send email to the customer
-            Mail::to($customer->email)->send(new CloseAccountMail($emailData));
+            //----Mail::to($customer->email)->send(new CloseAccountMail($emailData));
 
             // Send email to the admin
             $general_setting = getGeneralSettingByKey();
@@ -712,11 +771,11 @@ class SignupController extends Controller
             if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
                 $to_email = $adminEmailsArr[0];
                 unset($adminEmailsArr[0]);
-                Mail::to($to_email)->cc($adminEmailsArr)->send(new AdminCloseAccountMail($emailData));
+                //----Mail::to($to_email)->cc($adminEmailsArr)->send(new AdminCloseAccountMail($emailData));
             } else {
                 $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
                 if ($to_email) {
-                    Mail::to($to_email)->send(new AdminCloseAccountMail($emailData));
+                    //----Mail::to($to_email)->send(new AdminCloseAccountMail($emailData));
                 }
             }
 
@@ -750,7 +809,7 @@ class SignupController extends Controller
             // $data = [
             //     'name' => $customer->name
             // ];
-            // Mail::to($email)->send(new CustomerWelcomeMail($data));
+            // //----Mail::to($email)->send(new CustomerWelcomeMail($data));
         } else {
             Session::flash('message', 'User has been inactivate sucessfully.');
         }
@@ -859,7 +918,7 @@ class SignupController extends Controller
         $data['email'] = $customer->email;
 
 
-        Mail::to($customer->email)->send(new CustomerVerifyEmailMail($data));
+        //----Mail::to($customer->email)->send(new CustomerVerifyEmailMail($data));
 
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_52']);
         $message_52 = isset($general_messages['message_52']) ? $general_messages['message_52'] : '';
@@ -895,7 +954,7 @@ class SignupController extends Controller
         $data['email'] = $customer->email;
 
 
-        Mail::to($customer->email)->send(new CustomerReactiveEmailMail($data));
+        //----Mail::to($customer->email)->send(new CustomerReactiveEmailMail($data));
 
         return $this->successResponse("We have sent you an email to reactive your account.");
     }

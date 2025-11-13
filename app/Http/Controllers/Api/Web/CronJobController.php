@@ -31,7 +31,7 @@ class CronJobController extends Controller
     //             $emailSent[] = $customer;
     //             $data['customer'] = $customer;
     //             $data['holiday_email'] = $holidayEmail;
-    //             Mail::to($customer->email)->send(new HolidayMail($data));
+    //             //----Mail::to($customer->email)->send(new HolidayMail($data));
     //         }
     //         $holidayEmail->update([
     //             'is_email_sent' => 1
@@ -85,7 +85,7 @@ class CronJobController extends Controller
     //         // $batchSize = 40;
     //         // $chunks = array_chunk($emails, $batchSize);
     //         // foreach ($chunks as $batch) {
-    //         //     Mail::to($adminEmailsArr[0])->bcc($batch)->send(new HolidayMail($data));
+    //         //     //----Mail::to($adminEmailsArr[0])->bcc($batch)->send(new HolidayMail($data));
     //         // }
     //         $batchSize = 40;
     //     $chunks = array_chunk($emails, $batchSize);
@@ -93,7 +93,7 @@ class CronJobController extends Controller
     //     foreach ($chunks as $batch) {
     //         // Send to each customer directly (not BCC)
     //         foreach ($batch as $email) {
-    //             Mail::to($email)->send(new HolidayMail($data));
+    //             //----Mail::to($email)->send(new HolidayMail($data));
     //         }
     //         sleep(1);
     //     }
@@ -144,7 +144,7 @@ class CronJobController extends Controller
 
             foreach ($chunks as $batch) {
                 foreach ($batch as $email) {
-                    Mail::to($email)->send(new HolidayMail($data));
+                    //----Mail::to($email)->send(new HolidayMail($data));
                 }
                 sleep(1);
             }
@@ -172,7 +172,7 @@ class CronJobController extends Controller
             $data['customer'] = $customer;
             $data['package'] = $package;
             $data['login_url'] = url(langBasedURL(null, $general_setting['user_signin_page']));
-            Mail::to($customer->email)->send(new CustomerMembershipExpiryMail($data));
+            //----Mail::to($customer->email)->send(new CustomerMembershipExpiryMail($data));
 
             $customer->update([
                 'first_pkg_expiry_mail' => 1
@@ -185,11 +185,11 @@ class CronJobController extends Controller
             if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
                 $to_email = $adminEmailsArr[0];
                 unset($adminEmailsArr[0]);
-                Mail::to($to_email)->cc($adminEmailsArr)->send(new AdminMembershipExpiryMail($data));
+                //----Mail::to($to_email)->cc($adminEmailsArr)->send(new AdminMembershipExpiryMail($data));
             } else {
                 $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
                 if ($to_email) {
-                    Mail::to($to_email)->send(new AdminMembershipExpiryMail($data));
+                    //----Mail::to($to_email)->send(new AdminMembershipExpiryMail($data));
                 }
             }
         }
@@ -210,7 +210,7 @@ class CronJobController extends Controller
             $data['customer'] = $customer;
             $data['package'] = $package;
             $data['login_url'] = url(langBasedURL(null, $general_setting['user_signin_page']));
-            Mail::to($customer->email)->send(new CustomerMembershipExpiryMail($data));
+            //----Mail::to($customer->email)->send(new CustomerMembershipExpiryMail($data));
 
             $customer->update([
                 'second_pkg_expiry_mail' => 1
@@ -223,11 +223,11 @@ class CronJobController extends Controller
             if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
                 $to_email = $adminEmailsArr[0];
                 unset($adminEmailsArr[0]);
-                Mail::to($to_email)->cc($adminEmailsArr)->send(new AdminMembershipExpiryMail($data));
+                //----Mail::to($to_email)->cc($adminEmailsArr)->send(new AdminMembershipExpiryMail($data));
             } else {
                 $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
                 if ($to_email) {
-                    Mail::to($to_email)->send(new AdminMembershipExpiryMail($data));
+                    //----Mail::to($to_email)->send(new AdminMembershipExpiryMail($data));
                 }
             }
         }
@@ -248,7 +248,7 @@ class CronJobController extends Controller
             $data['customer'] = $customer;
             $data['package'] = $package;
             $data['login_url'] = url(langBasedURL(null, $general_setting['user_signin_page']));
-            Mail::to($customer->email)->send(new CustomerMembershipExpiryMail($data));
+            //----Mail::to($customer->email)->send(new CustomerMembershipExpiryMail($data));
 
             $customer->update([
                 'third_pkg_expiry_mail' => 1
@@ -262,11 +262,11 @@ class CronJobController extends Controller
             if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
                 $to_email = $adminEmailsArr[0];
                 unset($adminEmailsArr[0]);
-                Mail::to($to_email)->cc($adminEmailsArr)->send(new AdminMembershipExpiryMail($data));
+                //----Mail::to($to_email)->cc($adminEmailsArr)->send(new AdminMembershipExpiryMail($data));
             } else {
                 $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
                 if ($to_email) {
-                    Mail::to($to_email)->send(new AdminMembershipExpiryMail($data));
+                    //----Mail::to($to_email)->send(new AdminMembershipExpiryMail($data));
                 }
             }
         }
@@ -280,7 +280,7 @@ class CronJobController extends Controller
         $data = [];
         foreach ($infoLetters as $key => $infoLetter) {
             $data['subscribe_hash'] = $infoLetter->subscribe_hash ?? null;
-            Mail::to($infoLetter->email)->send(new AutoInfoLetterToCustomerMail($data));
+            //----Mail::to($infoLetter->email)->send(new AutoInfoLetterToCustomerMail($data));
         }
     }
 }

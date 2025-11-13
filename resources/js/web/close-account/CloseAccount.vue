@@ -124,16 +124,32 @@ export default {
         email: this.form.email,
         message: this.form.message,
       };
-      axios.post(this.submit_url, formData).then((res) => {
-        if (res.data.status == "Success") {
-          helper.swalSuccessMessageForWeb(res.data.message).then(function () {
-            window.location.href = res.data.data.redirect_url;
-            resolve(res);
-          });
-        } else {
-          helper.swalErrorMessageForWeb(res.data.message);
-        }
-      });
+      axios
+        .post(this.submit_url, formData)
+        .then((res) => {
+          if (res.data.status == "Success") {
+            const redirectUrl =
+              res.data && res.data.data ? res.data.data.redirect_url : null;
+            helper.swalSuccessMessageForWeb(res.data.message).then(() => {
+              if (redirectUrl) {
+                window.location.href = redirectUrl;
+              }
+            });
+          } else {
+            helper.swalErrorMessageForWeb(res.data.message);
+          }
+        })
+        .catch((error) => {
+          const message =
+            (error.response &&
+              error.response.data &&
+              error.response.data.message) ||
+            "Something went wrong. Please try again.";
+          helper.swalErrorMessageForWeb(message);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     },
     clearErrors(fieldName) {
       if (this.submitted) {

@@ -421,6 +421,10 @@ export default {
             },
             { name: "Sponsors", href: this.route("admin.sponsors.index") },
             {
+              name: "Sponsor Amounts",
+              href: this.route("admin.sponsor_amounts.index"),
+            },
+            {
               name: "Success Stories",
               href: this.route("admin.successStories.index"),
             },

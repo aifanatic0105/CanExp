@@ -44,12 +44,17 @@ class NewSponsorPaymentNotification extends Mailable
                 ->subject($rendered['subject'] ?: $subject)
                 ->with([
                     'body_html' => $rendered['body_html'],
+                    'sponsor' => $this->sponsor,
                     'data' => $payload,
                 ]);
         }
 
         return $this->subject($subject)
-                    ->view('mails.new-sponsor-payment-notification');
+                    ->view('mails.new-sponsor-payment-notification')
+                    ->with([
+                        'sponsor' => $this->sponsor,
+                        'data' => $this->data
+                    ]);
     }
 }
 

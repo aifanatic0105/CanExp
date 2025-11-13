@@ -60,6 +60,7 @@ Route::group(['prefix' => 'web'], function () {
     // Sponsor routes
     Route::post('/become-sponsor/process-payment', [BecomeSponsorController::class, 'processSponsorPayment']);
     Route::get('/get-coffee-wall-beneficiaries', [HelperController::class, 'getCoffeeWallBeneficiaries']);
+    Route::get('/get-sponsor-amounts', [HelperController::class, 'getSponsorAmounts']);
 });
 
 Route::get('/create-event-restriction', [HelperController::class, 'CreateEventRestriction'])->name('create_event_restriction');

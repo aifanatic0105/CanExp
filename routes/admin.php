@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\Admin\{
     CoffeeWallPackageController,
     CoffeeWallBeneficiaryController,
     CoffeeWallFaqController,
+    SponsorAmountController,
     CommentsSettingController,
     ContactFormController,
     ContactForRateSettingController,
@@ -125,6 +126,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum']], function (
     Route::apiResource('coffee-wall-packages', CoffeeWallPackageController::class);
     Route::apiResource('coffee-wall-beneficiaries', CoffeeWallBeneficiaryController::class);
     Route::apiResource('coffee-wall-faqs', CoffeeWallFaqController::class);
+    Route::get('sponsor-amounts-frequencies', [SponsorAmountController::class, 'getFrequencies']);
+    Route::apiResource('sponsor-amounts', SponsorAmountController::class);
+    Route::post('sponsor-amounts/batch-update', [SponsorAmountController::class, 'batchUpdate']);
     Route::apiResource('registration-packages', RegistrationPackageController::class);
     Route::apiResource('packages', PackageController::class);
     Route::get('billing-period-discounts', [BillingPeriodDiscountController::class, 'index']);

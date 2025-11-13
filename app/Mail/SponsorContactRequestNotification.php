@@ -44,11 +44,16 @@ class SponsorContactRequestNotification extends Mailable
                 ->subject($rendered['subject'] ?: $subject)
                 ->with([
                     'body_html' => $rendered['body_html'],
+                    'sponsor' => $this->sponsor,
                     'data' => $payload,
                 ]);
         }
 
         return $this->subject($subject)
-            ->view('mails.sponsor-contact-request-notification');
+            ->view('mails.sponsor-contact-request-notification')
+            ->with([
+                'sponsor' => $this->sponsor,
+                'data' => $this->data
+            ]);
     }
 }

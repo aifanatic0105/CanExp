@@ -33,6 +33,8 @@
                         id="email" v-model="form.email" @blur="checkEmailValidation($event.target.value)" />
                     <Error v-if="submitted" fieldName="email" :validationErros="validationErros" full_width="1" />
                 </div>
+                <div class="relative w-full mb-3">
+                </div>  
                 <div class="relative w-full mb-3" v-if="!isEditMode && !isLoggedIn">
                     <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="password">{{
                         JSON.parse(event_detail)["password_label"] }}
@@ -151,7 +153,7 @@
                                 " @click.prevent="
                                     updatePackageForm(premiumPackage)
                                     ">
-                                <div class="flex items-center lg:justify-between gap-x-4">
+                                <div class="flex flex-col items-center justify-center text-center gap-y-1 relative">
                                     <h3 id="tier-startup" class="text-xl leading-8 text-blue-600">
                                         {{
                                             premiumPackage
@@ -159,7 +161,7 @@
                                                 ?.name
                                         }}
                                     </h3>
-                                    <p class="rounded-full bg-red-600/10 px-2.5 py-1 text-xs font-semibold leading-5 text-red-600"
+                                    <p class="rounded-full bg-red-600/10 px-2.5 py-1 text-xs font-semibold leading-5 text-red-600 absolute top-0 right-0"
                                         v-if="premiumPackage?.is_default">
                                         Most popular
                                     </p>
@@ -172,7 +174,7 @@
                                     }}
                                 </p>
                                 <p class="mt-6 flex items-baseline gap-x-1 justify-center">
-                                    <span class="text-4xl font-bold tracking-tight text-gray-900">
+                                    <span class="text-4xl font-bold tracking-tight text-gray-900 lg:mt-6">
                                         ${{ premiumPackage?.event_price }}
                                     </span>
                                 </p>
@@ -189,7 +191,7 @@
                                                 d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
                                                 clip-rule="evenodd" />
                                         </svg>
-                                        {{ features?.name }}
+                                    <span v-html="formatFeatureName(features?.name)"></span>
                                     </li>
                                 </ul>
                             </div>
@@ -200,7 +202,7 @@
                                 " @click.prevent="
                                     updatePackageForm(featuredPackage)
                                     ">
-                                <div class="flex items-center lg:justify-between gap-x-4">
+                                <div class="flex flex-col items-center justify-center text-center gap-y-1">
                                     <h3 id="tier-startup" class="text-xl leading-8 text-blue-600">
                                         {{
                                             featuredPackage
@@ -208,7 +210,7 @@
                                                 ?.name
                                         }}
                                     </h3>
-                                    <p class="rounded-full bg-red-600/10 px-2.5 py-1 text-xs font-semibold leading-5 text-red-600"
+                                    <p class="rounded-full bg-red-600/10 px-2.5 py-1 text-xs font-semibold leading-5 text-red-600 mt-1"
                                         v-if="featuredPackage?.is_default">
                                         Most popular
                                     </p>
@@ -238,7 +240,7 @@
                                                 d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
                                                 clip-rule="evenodd" />
                                         </svg>
-                                        {{ features?.name }}
+                                        <span v-html="formatFeatureName(features?.name)"></span>
                                     </li>
                                 </ul>
                             </div>
@@ -753,6 +755,10 @@
                             checkDateLength('start_date', $event);
                         clearErrors('start_date');
                         " />
+                    <div v-if="dateErrors.start_date"
+                        class="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 shadow-sm">
+                        {{ dateErrors.start_date }}
+                    </div>
                     <Error v-if="submitted" fieldName="start_date" :validationErros="validationErros" />
                 </div>
                 <div class="relative z-0 w-full group">
@@ -765,6 +771,10 @@
                             checkDateLength('end_date', $event);
                         clearErrors('end_date');
                         " />
+                    <div v-if="dateErrors.end_date"
+                        class="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 shadow-sm">
+                        {{ dateErrors.end_date }}
+                    </div>
                     <Error v-if="submitted" fieldName="end_date" :validationErros="validationErros" />
                 </div>
                 <div class="relative z-0 w-full group">
@@ -780,59 +790,94 @@
                             " />
                     <Error v-if="submitted" fieldName="event_website" :validationErros="validationErros" />
                 </div>
-                <div class="relative z-0 w-full group">
+                <div></div>
+                <div class="relative z-0 w-full group flex flex-col">
                     <label for="exibitors_url" class="text-base md:text-base lg:text-lg">{{
                         JSON.parse(eventsetting).exibitors_url_label
                         }}</label>
-                    <input type="text" name="exibitors_url" id="exibitors_url"
-                        class="can-exp-input w-full block border border-gray-300 rounded focus:border-blue-600"
+                    <textarea rows="2" name="exibitors_url" id="exibitors_url"
+                        class="can-exp-input w-full block border border-gray-300 rounded focus:border-blue-600 resize-y"
+                        :title="JSON.parse(eventsetting).exibitors_url_placeholder"
                         :placeholder="JSON.parse(eventsetting).exibitors_url_placeholder
                             " :value="form.exibitors_url" @input="
                                 updateForm('exibitors_url', $event.target.value);
                             clearErrors(
                                 'exibitors_url');
-                            " />
+                            "></textarea>
                     <Error v-if="submitted" fieldName="exibitors_url" :validationErros="validationErros" />
                 </div>
-                <div class="relative z-0 w-full group">
+                <div class="relative z-0 w-full group flex flex-col">
                     <label for="visitors_url" class="text-base md:text-base lg:text-lg">{{
                         JSON.parse(eventsetting).visitors_label }}</label>
-                    <input type="text" name="visitors_url" id="visitors_url"
-                        class="can-exp-input w-full block border border-gray-300 rounded focus:border-blue-600"
+                    <textarea rows="2" name="visitors_url" id="visitors_url"
+                        class="can-exp-input w-full block border border-gray-300 rounded focus:border-blue-600 resize-y"
+                        :title="JSON.parse(eventsetting).visitors_placeholder"
                         :placeholder="JSON.parse(eventsetting).visitors_placeholder
                             " :value="form.visitors_url" @input="
                                 updateForm('visitors_url', $event.target.value);
                             clearErrors(
                                 'visitors_url'
                             );
-                            " />
+                            "></textarea>
                     <Error this.submitted="true;" fieldName="visitors_url" :validationErros="validationErros" />
                 </div>
-                <div class="relative z-0 w-full group">
+                <div class="relative z-0 w-full group flex flex-col">
                     <label for="press_url" class="text-base md:text-base lg:text-lg">{{
                         JSON.parse(eventsetting).press_url_label }}</label>
-                    <input type="text" name="press_url" id="press_url"
-                        class="can-exp-input w-full block border border-gray-300 rounded focus:border-blue-600"
+                    <textarea rows="2" name="press_url" id="press_url"
+                        class="can-exp-input w-full block border border-gray-300 rounded focus:border-blue-600 resize-y"
+                        :title="JSON.parse(eventsetting).press_url_placeholder"
                         :placeholder="JSON.parse(eventsetting).press_url_placeholder
                             " :value="form.press_url" @input="
                                 updateForm('press_url', $event.target.value);
                             clearErrors('press_url');
-                            " />
+                            "></textarea>
                     <Error v-if="submitted" fieldName="press_url" :validationErros="validationErros" />
                 </div>
-                <div class="relative z-0 w-full group">
-                    <label for="video_url" class="text-base md:text-base lg:text-lg">{{
+                <div class="relative z-0 w-full group"></div>
+                <div
+                    class="relative z-0 w-full group flex flex-col">
+                    <label for="video_url"
+                        class="text-base md:text-base lg:text-lg font-semibold">{{
                         JSON.parse(eventsetting).video_url_label }}</label>
-                    <input type="text" name="video_url" id="video_url"
-                        class="can-exp-input w-full block border border-gray-300 rounded focus:border-blue-600"
+                    <textarea rows="2" name="video_url" id="video_url"
+                        class="can-exp-input w-full block border border-gray-300 rounded focus:border-blue-600 resize-y"
+                        :title="JSON.parse(eventsetting).video_url_placeholder"
                         :placeholder="JSON.parse(eventsetting).video_url_placeholder
                             " :value="form.video_url" @input="
                                 updateForm('video_url', $event.target.value);
                             clearErrors('video_url');
-                            " />
+                            "></textarea>
                     <Error v-if="submitted" fieldName="video_url" :validationErros="validationErros" />
                 </div>
-                <div class="relative z-0 w-full group"></div>
+                
+                <!-- event media -->
+                <div class="w-full">
+                    <label for="" class="text-base md:text-base lg:text-lg font-semibold truncate">Main Event Image (Allowed: PNG, GIF, JPG, JPEG). Max size: 30MB<span class="text-red-500">*</span></label>
+                    <div class="relative z-0 w-full mb-6 group">
+                        <template v-if="
+                            current_user &&
+                            JSON.parse(current_user)?.registration_package?.package_type == 'featured'
+                        ">
+                            <FilePond
+                                labelIdle='<span class="cursor-pointer">Drag & Drop your files or <span class="filepond--label-action"> Browse </span></span>'
+                                class="cursor-pointer" name="gallery_image" ref="gallery_image" class-name="my-pond"
+                                credits="false" accepted-file-types="image/*" allow-multiple="true"
+                                @init="handleGalleryImagesInit" @processfile="handleGalleryImagesProcess"
+                                @removefile="handleGalleryImagesRemoveFile" v-bind:files="gallery_files"
+                                @addfile="clearErrors('gallery_images')" />
+                        </template>
+                        <template v-else>
+                            <FilePond
+                                labelIdle='<span class="cursor-pointer">Drag & Drop your files or <span class="filepond--label-action"> Browse </span></span>'
+                                class="cursor-pointer" name="gallery_image" ref="gallery_image" class-name="my-pond"
+                                credits="false" accepted-file-types="image/*" @init="handleGalleryImagesInit"
+                                @processfile="handleGalleryImagesProcess" @removefile="handleGalleryImagesRemoveFile"
+                                v-bind:files="gallery_files" @addfile="clearErrors('gallery_images')" />
+                        </template>
+                    </div>
+                    <Error fieldName="gallery_images" :validationErros="validationErros" />
+                </div>
             </div>
 
             <div
@@ -964,7 +1009,7 @@
                             :validationErros="validationErros"
                         />
                     </div> -->
-                    <div class="relative z-0 w-full group">
+                    <div class="relative z-0 w-full group mt-2">
                         <label :for="`contact-image-[${index}]`" class="text-base md:text-base lg:text-lg">
                             {{ JSON.parse(eventsetting).profile_image_label }}
 
@@ -1095,33 +1140,6 @@
                         " />
                     <Error v-if="submitted" fieldName="snapchat_url" :validationErros="validationErros" />
                 </div>
-                <!-- event media -->
-                <div class="w-full">
-                    <label for="">Event Main Image <span class="text-red-500">*</span></label>
-                    <div class="relative z-0 w-full mb-6 group">
-                        <template v-if="
-                            current_user &&
-                            JSON.parse(current_user)?.registration_package?.package_type == 'featured'
-                        ">
-                            <FilePond
-                                labelIdle='<span class="cursor-pointer">Drag & Drop your files or <span class="filepond--label-action"> Browse </span></span>'
-                                class="cursor-pointer" name="gallery_image" ref="gallery_image" class-name="my-pond"
-                                credits="false" accepted-file-types="image/*" allow-multiple="true"
-                                @init="handleGalleryImagesInit" @processfile="handleGalleryImagesProcess"
-                                @removefile="handleGalleryImagesRemoveFile" v-bind:files="gallery_files"
-                                @addfile="clearErrors('gallery_images')" />
-                        </template>
-                        <template v-else>
-                            <FilePond
-                                labelIdle='<span class="cursor-pointer">Drag & Drop your files or <span class="filepond--label-action"> Browse </span></span>'
-                                class="cursor-pointer" name="gallery_image" ref="gallery_image" class-name="my-pond"
-                                credits="false" accepted-file-types="image/*" @init="handleGalleryImagesInit"
-                                @processfile="handleGalleryImagesProcess" @removefile="handleGalleryImagesRemoveFile"
-                                v-bind:files="gallery_files" @addfile="clearErrors('gallery_images')" />
-                        </template>
-                    </div>
-                    <Error fieldName="gallery_images" :validationErros="validationErros" />
-                </div>
             </div>
         </div>
         <div class="mt-8 flex">
@@ -1133,8 +1151,8 @@
 
         <div class="mb-4">
             <div class="flex items-start pb-4">
-                <input id="agree" type="checkbox"
-                    class="h-4 w-4 mt-1 rounded border-gray-300 text-primary focus:ring-primary" @input="
+                <input id="agree" type="checkbox" :checked="!!form.is_agree"
+                    class="h-4 w-4 mt-1 rounded border-gray-500 text-primary focus:ring-primary" @input="
                         updateForm('is_agree', $event.target.checked);
                     clearErrors('is_agree');
                     " />
@@ -1148,7 +1166,12 @@
         </div>
 
         <div class="flex justify-center">
-            <button aria-label="Candian Exporters" type="submit" class="inline-flex items-center button-exp-fill mt-4">
+            <button aria-label="Candian Exporters" type="submit"
+                :disabled="!form.is_agree"
+                :class="[
+                    'inline-flex items-center button-exp-fill mt-4 transition-opacity duration-200',
+                    { 'opacity-40 cursor-not-allowed': !form.is_agree }
+                ]">
                 {{ JSON.parse(event_detail)["button_text"] }}
             </button>
         </div>
@@ -1267,6 +1290,7 @@ export default {
                 snapchat_url: null,
                 gallery_images: [],
                 contacts: [],
+                is_agree: false,
             },
             freePackage: [],
             featuredPackage: [],
@@ -1278,6 +1302,10 @@ export default {
             showTooltip: false,
             submitted: false,
             popupImage: null,
+            dateErrors: {
+                start_date: "",
+                end_date: "",
+            },
         };
     },
     mounted() {
@@ -1285,7 +1313,12 @@ export default {
         if (!this.isEditMode) {
             const savedForm = localStorage.getItem("event_signup_form");
             if (savedForm) {
-                this.form = JSON.parse(savedForm);
+                const parsedForm = JSON.parse(savedForm);
+                this.form = {
+                    ...this.form,
+                    ...parsedForm,
+                    is_agree: !!parsedForm.is_agree,
+                };
             }
         }
     },
@@ -1352,9 +1385,82 @@ export default {
                 event.target.value = dateParts.join("-");
             }
 
-            this.updateForm(field, event.target.value);
+            this.validateAndUpdateDate(field, event);
 
             this.$store.commit("events/clearValidationError", field);
+        },
+        validateAndUpdateDate(field, event) {
+            const value = event.target.value;
+
+            if (!value) {
+                if (this.dateErrors[field] !== undefined) {
+                    this.dateErrors[field] = "";
+                }
+                this.updateForm(field, null);
+                return;
+            }
+
+            const [yearStr, monthStr, dayStr] = value.split("-");
+            const year = Number(yearStr);
+            const month = Number(monthStr);
+            const day = Number(dayStr);
+            const currentYear = new Date().getFullYear();
+            const maxYear = currentYear + 5;
+
+            let isValid = true;
+
+            if (
+                !Number.isInteger(year) ||
+                !Number.isInteger(month) ||
+                !Number.isInteger(day)
+            ) {
+                isValid = false;
+            }
+
+            if (isValid && (month < 1 || month > 12)) {
+                isValid = false;
+            }
+
+            if (isValid && year > maxYear) {
+                isValid = false;
+            }
+
+            if (isValid) {
+                const maxDay = new Date(year, month, 0).getDate();
+                if (day < 1 || day > maxDay) {
+                    isValid = false;
+                }
+            }
+
+            if (!isValid) {
+                const message = "Please select a valid date";
+                if (
+                    typeof helper !== "undefined" &&
+                    helper &&
+                    typeof helper.swalErrorMessageForWeb === "function"
+                ) {
+                    helper.swalErrorMessageForWeb(message);
+                } else if (
+                    typeof window !== "undefined" &&
+                    window.helper &&
+                    typeof window.helper.swalErrorMessageForWeb === "function"
+                ) {
+                    window.helper.swalErrorMessageForWeb(message);
+                }
+                if (this.dateErrors[field] !== undefined) {
+                    this.dateErrors[field] = message;
+                }
+                this.validationErros.set(field, message);
+                event.target.value = "";
+                this.updateForm(field, null);
+                return;
+            }
+
+            if (this.dateErrors[field] !== undefined) {
+                this.dateErrors[field] = "";
+            }
+            this.validationErros.clear(field);
+            this.updateForm(field, value);
         },
         updateForm(field, value, price = 0) {
             this.form[field] = value;
@@ -1372,6 +1478,12 @@ export default {
 
             // Update the form with the new truncated value
             this.handleInput(event.target.value, language, fieldName);
+        },
+        formatFeatureName(name) {
+            if (!name) {
+                return "";
+            }
+            return String(name).replace(/\((\d+)\)/g, '<sup class="footnote-indicator">($1)</sup>');
         },
         handleInput(value, language, fieldName) {
             this.form[fieldName][`${fieldName}_${language.id}`] =
@@ -1423,6 +1535,9 @@ export default {
                 });
         },
         clearErrors(fieldName) {
+            if (this.dateErrors[fieldName] !== undefined) {
+                this.dateErrors[fieldName] = "";
+            }
             if (this.submitted) {
                 this.validationErros.clear(fieldName);
             }
@@ -2056,5 +2171,13 @@ export default {
 
 .filepond--drip-blob {
     background-color: #7f8a9a;
+}
+
+.footnote-indicator {
+    font-size: 0.75em;
+    vertical-align: super;
+    line-height: 1;
+    color: #6b7280;
+    font-weight: 400;
 }
 </style>

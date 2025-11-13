@@ -2,7 +2,12 @@
 @php
     echo \Illuminate\Support\Facades\Blade::render(
         $body_html ?? '',
-        array_merge(['data' => $data ?? []], $data ?? [], ['unsubscribeLink' => $unsubscribeLink ?? null])
+        array_merge(
+            ['data' => $data ?? []],
+            $data ?? [],
+            ['unsubscribeLink' => $unsubscribeLink ?? null],
+            ['sponsor' => $sponsor ?? null]
+        )
     );
 @endphp
 @else
@@ -10,7 +15,12 @@
 @php
     echo \Illuminate\Support\Facades\Blade::render(
         $body_html ?? '',
-        array_merge(['data' => $data ?? []], $data ?? [], ['unsubscribeLink' => $unsubscribeLink ?? null])
+        array_merge(
+            ['data' => $data ?? []],
+            $data ?? [],
+            ['unsubscribeLink' => $unsubscribeLink ?? null],
+            ['sponsor' => $sponsor ?? null]
+        )
     );
 @endphp
 

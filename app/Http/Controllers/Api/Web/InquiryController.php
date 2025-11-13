@@ -174,16 +174,16 @@ class InquiryController extends Controller
         // purana mail ka code
         // $to_email = isset($user->email) ? $user->email : null;
         // if (isset($to_email)) {
-        //     Mail::to($to_email)->cc($adminEmailsArr)->send(new InquiryMail($data));
+        //     //----Mail::to($to_email)->cc($adminEmailsArr)->send(new InquiryMail($data));
         // } else {
         //     if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
         //         $to_email = $adminEmailsArr[0];
         //         unset($adminEmailsArr[0]);
-        //         Mail::to($to_email)->cc($adminEmailsArr)->send(new InquiryMail($data));
+        //         //----Mail::to($to_email)->cc($adminEmailsArr)->send(new InquiryMail($data));
         //     } else {
         //         $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
         //         if ($to_email) {
-        //             Mail::to($to_email)->send(new InquiryMail($data));
+        //             //----Mail::to($to_email)->send(new InquiryMail($data));
         //         }
         //     }
         // }

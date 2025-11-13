@@ -39,7 +39,7 @@ class InfoLetterSettingController extends Controller
 
     //     foreach ($recipients as $email) {
     //         if($email){
-    //             Mail::to($email)->send(new InfoLetterAdminMail($message, $file, $email));
+    //             //----Mail::to($email)->send(new InfoLetterAdminMail($message, $file, $email));
     //         }
     //     }
 
@@ -83,7 +83,7 @@ class InfoLetterSettingController extends Controller
 
             if ($isSubscribed) {
                 try {
-                    Mail::to($email)->send(new InfoLetterAdminMail($message, $file, $email));
+                    //----Mail::to($email)->send(new InfoLetterAdminMail($message, $file, $email));
                     $sentCount++;
                 } catch (\Exception $e) {
                     Log::error("Failed to send email to {$email}: " . $e->getMessage());

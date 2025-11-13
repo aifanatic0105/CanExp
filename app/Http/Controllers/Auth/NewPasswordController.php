@@ -197,7 +197,7 @@ class NewPasswordController extends Controller
                 event(new PasswordReset($user));
 
                 // Send password reset success email
-                Mail::to($user->email)->send(new CustomerPasswordResetSuccessMail(['name' => $user->name, 'email' => $user->email]));
+                //----Mail::to($user->email)->send(new CustomerPasswordResetSuccessMail(['name' => $user->name, 'email' => $user->email]));
 
                 Session::flash('message', 'Your password has been reset successfully.');
                 Session::flash('type', 'success');
@@ -221,7 +221,7 @@ class NewPasswordController extends Controller
                 event(new PasswordReset($customer));
 
                 // Send password reset success email
-                Mail::to($customer->email)->send(new CustomerPasswordResetSuccessMail(['name' => $customer->name, 'email' => $customer->email]));
+                //----Mail::to($customer->email)->send(new CustomerPasswordResetSuccessMail(['name' => $customer->name, 'email' => $customer->email]));
 
                 Session::flash('message', 'Your password has been reset successfully.');
                 Session::flash('type', 'success');

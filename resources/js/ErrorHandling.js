@@ -4,7 +4,13 @@ export default class ErrorHandling {
     }
 
     has(field) {
-        return this.errors.hasOwnProperty(field);
+        if (this.errors.hasOwnProperty(field)) {
+            return true;
+        }
+
+        return Object.keys(this.errors).some((key) =>
+            key.startsWith(`${field}.`)
+        );
     }
 
     any() {
@@ -15,6 +21,16 @@ export default class ErrorHandling {
         if (this.errors[field]) {
             // Return errors as a string with line breaks
             return this.errors[field].join('<br/>');
+        }
+
+        const nestedMessages = Object.keys(this.errors)
+            .filter((key) => key.startsWith(`${field}.`))
+            .reduce((accumulator, key) => {
+                return accumulator.concat(this.errors[key]);
+            }, []);
+
+        if (nestedMessages.length) {
+            return nestedMessages.join('<br/>');
         }
     }
 
@@ -29,5 +45,11 @@ export default class ErrorHandling {
 
     clear(field) {
         delete this.errors[field]
+
+        Object.keys(this.errors)
+            .filter((key) => key.startsWith(`${field}.`))
+            .forEach((key) => {
+                delete this.errors[key];
+            });
     }
 }

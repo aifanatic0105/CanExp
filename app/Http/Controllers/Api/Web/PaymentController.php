@@ -163,7 +163,7 @@ class PaymentController extends Controller
                     $message_19 = str_replace(":name", $username, $message_19);
 
                     $data = ['name' => $username, 'email' => $user->email];
-                    Mail::to($user->email)->send(new CustomerWelcomeMail($data));
+                    //----Mail::to($user->email)->send(new CustomerWelcomeMail($data));
 
                     return $this->successResponse(
                         ['type' => 'paypal', 'redirect_url' => $paypalResponse['redirect_url']],
@@ -240,7 +240,7 @@ class PaymentController extends Controller
 
                 $PDFService = new PDFService();
                 $PDFService->createRegistrationInvoicePDF(null, $data);
-                Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
+                //----Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
             } else {
                 $order = Order::create([
                     'registration_package_id' => $package->id,
@@ -270,7 +270,7 @@ class PaymentController extends Controller
 
                 $PDFService = new PDFService();
                 $PDFService->createRegistrationInvoicePDF(null, $data);
-                Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
+                //----Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
             }
 
             $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_19']);
@@ -286,7 +286,7 @@ class PaymentController extends Controller
                 'name' => $username,
                 'email' => $user->email
             ];
-            Mail::to($user->email)->send(new CustomerWelcomeMail($data));
+            //----Mail::to($user->email)->send(new CustomerWelcomeMail($data));
             return $this->successResponse([], $message_19);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
@@ -364,15 +364,22 @@ class PaymentController extends Controller
         $phone = isset($_GET['phone']) ? $_GET['phone'] : null;
         $anonymous = isset($_GET['anonymous']) ? $_GET['anonymous'] : 0;
         $frequency = isset($_GET['frequency']) ? $_GET['frequency'] : null;
-        $beneficiary_id = isset($_GET['beneficiary_id']) ? $_GET['beneficiary_id'] : null;
+        $beneficiaryIds = collect(explode(',', $_GET['beneficiary_ids'] ?? ''))
+            ->filter()
+            ->map(function ($id) {
+                return is_numeric($id) ? (int) $id : null;
+            })
+            ->filter()
+            ->unique()
+            ->values();
 
-        CoffeeWallet::create([
+        $coffeeWallet = CoffeeWallet::create([
             'name' => $name,
             'email' => $email,
             'phone' => $phone,
             'anonymous' => $anonymous,
             'package_id' => $_GET['package_id'],
-            'beneficiary_id' => $beneficiary_id,
+            'beneficiary_id' => $beneficiaryIds->first(),
             'frequency' => $frequency,
             'dr_amount' => $package->price,
             'paypal_id' => $request->subscription_id,
@@ -381,6 +388,10 @@ class PaymentController extends Controller
             'payment_method' => 'paypal',
             'status' => 'completed',
         ]);
+
+        if ($beneficiaryIds->isNotEmpty()) {
+            $coffeeWallet->beneficiaries()->sync($beneficiaryIds->all());
+        }
 
         Session::flash('status', 'success');
         Session::flash('message', 'Payment successful');
@@ -497,7 +508,7 @@ class PaymentController extends Controller
                     'email' => $customer->email,
                 ];
 
-                Mail::to($customer->email)->send(new CustomerVerifyEmailMail($data));
+                //----Mail::to($customer->email)->send(new CustomerVerifyEmailMail($data));
 
 
                 $data = ['package_name' => $packageName, 'package_price' => $package_price, 'package_validity' => $packageValidity, 'payment_frequency' => $user->payment_frequency, 'customer' => $customer, 'order' => $order, 'package_expiry_date' => $package_expiry_date];
@@ -506,7 +517,7 @@ class PaymentController extends Controller
 
                 $PDFService->createRegistrationInvoicePDF(null, $data);
 
-                Mail::to($customer->email)->send(new RegistrationInvoiceToCustomerMail($data));
+                //----Mail::to($customer->email)->send(new RegistrationInvoiceToCustomerMail($data));
 
                 $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_38']);
                 $message_38 = isset($general_messages['message_38']) ? $general_messages['message_38'] : '';
@@ -773,7 +784,7 @@ class PaymentController extends Controller
 
             $PDFService->createRegistrationInvoicePDF(null, $data);
 
-            Mail::to($customer->email)->send(new RegistrationInvoiceToCustomerMail($data));
+            //----Mail::to($customer->email)->send(new RegistrationInvoiceToCustomerMail($data));
 
             $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_15']);
             $message_15 = isset($general_messages['message_15']) ? $general_messages['message_15'] : '';
@@ -820,7 +831,7 @@ class PaymentController extends Controller
 
             $data = ['customer' => $customer, 'event_name' => $event->eventDetail[0]->title, 'package_name' => isset($package->registrationPackageDetail[0]) ? $package->registrationPackageDetail[0]->name : '', 'package_price' => $price];
             if (isset($_GET['e'])) {
-                Mail::to($_GET['e'])->send(new WelcomeEventMail($data));
+                //----Mail::to($_GET['e'])->send(new WelcomeEventMail($data));
             }
 
             $order = Order::create([
@@ -844,7 +855,7 @@ class PaymentController extends Controller
 
             $PDFService->createRegistrationInvoicePDF(null, $data);
             if (isset($_GET['e'])) {
-                Mail::to($_GET['e'])->send(new RegistrationInvoiceToCustomerMail($data));
+                //----Mail::to($_GET['e'])->send(new RegistrationInvoiceToCustomerMail($data));
             }
 
             $general_setting = getSignleGeneralSettingByKey(['user_signin_page']);
@@ -877,7 +888,7 @@ class PaymentController extends Controller
                     'events_remaining' => $user->events_remaining - 1
                 ]);
 
-                Mail::to($user->email)->send(new EventCreationInvoiceMail($event, 'customer'));
+                //----Mail::to($user->email)->send(new EventCreationInvoiceMail($event, 'customer'));
                 $general_setting = getGeneralSettingByKey();
                 if (isset($general_setting['admin_email'])) {
                     $adminEmailsArr = explode(',', $general_setting['admin_email']);
@@ -886,11 +897,11 @@ class PaymentController extends Controller
                 if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
                     $to_email = $adminEmailsArr[0];
                     unset($adminEmailsArr[0]);
-                    Mail::to($to_email)->cc($adminEmailsArr)->send(new EventCreationInvoiceMail($event, 'admin'));
+                    //----Mail::to($to_email)->cc($adminEmailsArr)->send(new EventCreationInvoiceMail($event, 'admin'));
                 } else {
                     $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
                     if ($to_email) {
-                        Mail::to($to_email)->send(new EventCreationInvoiceMail($event, 'admin'));
+                        //----Mail::to($to_email)->send(new EventCreationInvoiceMail($event, 'admin'));
                     }
                 }
 
@@ -995,7 +1006,7 @@ class PaymentController extends Controller
                 return redirect()->route('front.index');
             }
 
-            $sponsor = \App\Models\Sponsor::findOrFail($sponsorId);
+            $sponsor = \App\Models\Sponsor::with('beneficiary')->findOrFail($sponsorId);
             
             // Capture the PayPal order
             $paypal = new \App\Services\PaypalService();
@@ -1015,11 +1026,14 @@ class PaymentController extends Controller
                     'paid_at' => now(),
                 ]);
 
+                // Reload sponsor to get fresh data with relationships
+                $sponsor->refresh();
+
                 // Send admin notification
                 $general_setting = getGeneralSettingByKey();
                 if (isset($general_setting['admin_email'])) {
                     $adminEmailsArr = explode(',', $general_setting['admin_email']);
-                    Mail::to($adminEmailsArr)->send(new \App\Mail\NewSponsorPaymentNotification($sponsor));
+                    //----Mail::to($adminEmailsArr)->send(new \App\Mail\NewSponsorPaymentNotification($sponsor));
                 }
 
                 // Auto-login customer and send credentials if needed
