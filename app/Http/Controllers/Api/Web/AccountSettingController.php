@@ -327,7 +327,7 @@ class AccountSettingController extends Controller
 
             // $PDFService = new PDFService();
             // $PDFService->createRegistrationInvoicePDF(null, $data);
-            // //----Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
+            // Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
 
             $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_19_a']);
             $message_19_a = isset($general_messages['message_19_a']) ? $general_messages['message_19_a'] : '';

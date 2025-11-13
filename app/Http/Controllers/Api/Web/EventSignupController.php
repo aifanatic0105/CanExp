@@ -343,17 +343,17 @@ class EventSignupController extends Controller
             if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
                 $to_email = $adminEmailsArr[0];
                 unset($adminEmailsArr[0]);
-                //----Mail::to($to_email)->cc($adminEmailsArr)->send(new NewCustomerAdminMail($data));
+                Mail::to($to_email)->cc($adminEmailsArr)->send(new NewCustomerAdminMail($data));
             } else {
                 $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
                 if ($to_email) {
-                    //----Mail::to($to_email)->send(new NewCustomerAdminMail($data));
+                    Mail::to($to_email)->send(new NewCustomerAdminMail($data));
                 }
             }
 
             // Only send verification email to new customers
             if ($isNewCustomer) {
-                //----Mail::to($request->email)->send(new CustomerVerifyEmailMail($data));
+                Mail::to($request->email)->send(new CustomerVerifyEmailMail($data));
             }
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
@@ -571,7 +571,7 @@ class EventSignupController extends Controller
             }
 
             $data = ['customer' => $customer, 'event_name' => $event->eventDetail[0]->title, 'package_name' => isset($package->registrationPackageDetail[0]) ? $package->registrationPackageDetail[0]->name : '', 'package_price' => $price];
-            //----Mail::to($request->email)->send(new WelcomeEventMail($data));
+            Mail::to($request->email)->send(new WelcomeEventMail($data));
 
             if ($totalAmount > 0) {
                 $order = Order::create([
@@ -597,7 +597,7 @@ class EventSignupController extends Controller
 
                 $PDFService->createRegistrationInvoicePDF(null, $data);
 
-                //----Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
+                Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
             } else {
                 $order = Order::create([
                     'registration_package_id' => $package->id,
@@ -618,7 +618,7 @@ class EventSignupController extends Controller
 
                 $PDFService->createRegistrationInvoicePDF(null, $data);
 
-                //----Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
+                Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
             }
             
             Log::info('===== Event Signup Payment Completed Successfully =====');

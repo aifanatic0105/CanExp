@@ -340,11 +340,11 @@ class SignupController extends Controller
             if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
                 $to_email = $adminEmailsArr[0];
                 unset($adminEmailsArr[0]);
-                //----Mail::to($to_email)->cc($adminEmailsArr)->send(new NewCustomerAdminMail($data));
+                Mail::to($to_email)->cc($adminEmailsArr)->send(new NewCustomerAdminMail($data));
             } else {
                 $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
                 if ($to_email) {
-                    //----Mail::to($to_email)->send(new NewCustomerAdminMail($data));
+                    Mail::to($to_email)->send(new NewCustomerAdminMail($data));
                 }
             }
             // Only send verification email to NEW customers
@@ -372,7 +372,7 @@ class SignupController extends Controller
 
             //     $PDFService->createRegistrationInvoicePDF(null, $data);
 
-            //     //----Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
+            //     Mail::to($request->email)->send(new RegistrationInvoiceToCustomerMail($data));
             // }
             DB::commit();
         } catch (Exception $e) {
@@ -571,7 +571,7 @@ class SignupController extends Controller
 
 
         $data = ['token' => $token, 'lang' => $defaultLang, 'email' => $request->email, 'name' => $customer->name,];
-        //----Mail::to($request->email)->send(new CustomerResetPasswordMail($data));
+        Mail::to($request->email)->send(new CustomerResetPasswordMail($data));
 
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_51']);
         $message_51 = isset($general_messages['message_51']) ? $general_messages['message_51'] : '';
@@ -625,13 +625,13 @@ class SignupController extends Controller
     //         'email' => $request->email,
     //         'name' => $customer->name,
     //     ];
-    //     //----Mail::to($request->email)->send(new CustomerResetPasswordMail($data));
+    //     Mail::to($request->email)->send(new CustomerResetPasswordMail($data));
 
     //     // Send Confirmation Email for Successful Reset
     //     $confirmationEmailData = [
     //         'name' => $customer->name,
     //     ];
-    //     //----Mail::to($request->email)->send(new CustomerPasswordResetSuccessMail($confirmationEmailData));
+    //     Mail::to($request->email)->send(new CustomerPasswordResetSuccessMail($confirmationEmailData));
 
     //     $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_51']);
     //     $message_51 = isset($general_messages['message_51']) ? $general_messages['message_51'] : '';
@@ -760,7 +760,7 @@ class SignupController extends Controller
             ];
 
             // Send email to the customer
-            //----Mail::to($customer->email)->send(new CloseAccountMail($emailData));
+            Mail::to($customer->email)->send(new CloseAccountMail($emailData));
 
             // Send email to the admin
             $general_setting = getGeneralSettingByKey();
@@ -771,11 +771,11 @@ class SignupController extends Controller
             if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
                 $to_email = $adminEmailsArr[0];
                 unset($adminEmailsArr[0]);
-                //----Mail::to($to_email)->cc($adminEmailsArr)->send(new AdminCloseAccountMail($emailData));
+                Mail::to($to_email)->cc($adminEmailsArr)->send(new AdminCloseAccountMail($emailData));
             } else {
                 $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
                 if ($to_email) {
-                    //----Mail::to($to_email)->send(new AdminCloseAccountMail($emailData));
+                    Mail::to($to_email)->send(new AdminCloseAccountMail($emailData));
                 }
             }
 
@@ -809,7 +809,7 @@ class SignupController extends Controller
             // $data = [
             //     'name' => $customer->name
             // ];
-            // //----Mail::to($email)->send(new CustomerWelcomeMail($data));
+            // Mail::to($email)->send(new CustomerWelcomeMail($data));
         } else {
             Session::flash('message', 'User has been inactivate sucessfully.');
         }
@@ -918,7 +918,7 @@ class SignupController extends Controller
         $data['email'] = $customer->email;
 
 
-        //----Mail::to($customer->email)->send(new CustomerVerifyEmailMail($data));
+        Mail::to($customer->email)->send(new CustomerVerifyEmailMail($data));
 
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_52']);
         $message_52 = isset($general_messages['message_52']) ? $general_messages['message_52'] : '';
@@ -954,7 +954,7 @@ class SignupController extends Controller
         $data['email'] = $customer->email;
 
 
-        //----Mail::to($customer->email)->send(new CustomerReactiveEmailMail($data));
+        Mail::to($customer->email)->send(new CustomerReactiveEmailMail($data));
 
         return $this->successResponse("We have sent you an email to reactive your account.");
     }

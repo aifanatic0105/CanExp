@@ -96,6 +96,6 @@ class StripeWebHookController extends Controller
 
         $PDFService->createRegistrationInvoicePDF(null, $data);
 
-        //----Mail::to($customer->email)->send(new RegistrationInvoiceToCustomerMail($data));
+        Mail::to($customer->email)->send(new RegistrationInvoiceToCustomerMail($data));
     }
 }

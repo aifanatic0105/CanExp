@@ -53,6 +53,14 @@ class Sponsor extends Model
     }
 
     /**
+     * Get all beneficiaries associated with the sponsor.
+     */
+    public function beneficiaries()
+    {
+        return $this->belongsToMany(CoffeeWallBeneficiary::class, 'sponsor_beneficiary')->withTimestamps();
+    }
+
+    /**
      * Scope for active sponsors.
      */
     public function scopeActive($query)

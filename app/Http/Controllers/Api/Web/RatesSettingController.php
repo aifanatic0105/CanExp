@@ -48,15 +48,15 @@ class RatesSettingController extends Controller
         if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
             $to_email = $adminEmailsArr[0];
             unset($adminEmailsArr[0]);
-            //----Mail::to($to_email)->cc($adminEmailsArr)->send(new RatesMail($data));
+            Mail::to($to_email)->cc($adminEmailsArr)->send(new RatesMail($data));
         } else {
             $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
             if ($to_email) {
-                //----Mail::to($to_email)->send(new RatesMail($data));
+                Mail::to($to_email)->send(new RatesMail($data));
             }
         }
 
-        //----Mail::to($request->email)->send(new AutoResponseToCustomerMail([]));
+        Mail::to($request->email)->send(new AutoResponseToCustomerMail([]));
 
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_60']);
         $message_60 = isset($general_messages['message_60']) ? $general_messages['message_60'] : '';

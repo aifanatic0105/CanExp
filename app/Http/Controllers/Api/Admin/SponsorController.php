@@ -121,7 +121,7 @@ class SponsorController extends Controller
         }
 
         if (request()->has('withBeneficiary') && request('withBeneficiary') == '1') {
-            $query->with('beneficiary');
+            $query->with(['beneficiaries', 'beneficiary']);
         }
 
         if (request()->has('withCustomer') && request('withCustomer') == '1') {
@@ -153,7 +153,12 @@ class SponsorController extends Controller
 
         // Filter by beneficiary
         if ($request->has('beneficiary_id') && $request->beneficiary_id != '') {
-            $query->where('beneficiary_id', $request->beneficiary_id);
+            $query->where(function ($beneficiaryQuery) use ($request) {
+                $beneficiaryQuery->where('beneficiary_id', $request->beneficiary_id)
+                    ->orWhereHas('beneficiaries', function ($relationQuery) use ($request) {
+                        $relationQuery->where('coffee_wall_beneficiaries.id', $request->beneficiary_id);
+                    });
+            });
         }
 
         // Filter by visibility

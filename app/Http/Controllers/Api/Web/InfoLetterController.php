@@ -70,15 +70,15 @@ class InfoLetterController extends Controller
         if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
             $to_email = $adminEmailsArr[0];
             unset($adminEmailsArr[0]);
-            //----Mail::to($to_email)->cc($adminEmailsArr)->send(new InfoLetterMail($data));
+            Mail::to($to_email)->cc($adminEmailsArr)->send(new InfoLetterMail($data));
         } else {
             $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
             if ($to_email) {
-                //----Mail::to($to_email)->send(new InfoLetterMail($data));
+                Mail::to($to_email)->send(new InfoLetterMail($data));
             }
         }
 
-        //----Mail::to($request->email)->send(new InfoLetterSubscriptionMail($data));
+        Mail::to($request->email)->send(new InfoLetterSubscriptionMail($data));
 
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_45']);
         $message_45 = isset($general_messages['message_45']) ? $general_messages['message_45'] : '';

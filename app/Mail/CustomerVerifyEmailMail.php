@@ -39,12 +39,16 @@ class CustomerVerifyEmailMail extends Mailable
     // }
     public function build()
     {
+        $defaultSubject = isset($this->data['signup_page']) && $this->data['signup_page'] === 'event'
+            ? 'Please verify your email to complete your event listing.'
+            : 'Please verify your email to complete your exporter profile listing';
+
         $service = app(EmailTemplateService::class);
-        $rendered = $service->render('customer_verify_email', $this->data, 'Verify your email address. Complete your registration', null);
+        $rendered = $service->render('customer_verify_email', $this->data, $defaultSubject, null);
 
         if (!empty($rendered['body_html'])) {
             return $this->markdown('mails.dynamic-markdown')
-                ->subject($rendered['subject'] ?: 'Verify your email address. Complete your registration')
+                ->subject($rendered['subject'] ?: $defaultSubject)
                 ->with([
                     'body_html' => $rendered['body_html'],
                     'data' => $this->data,
@@ -52,7 +56,7 @@ class CustomerVerifyEmailMail extends Mailable
         }
 
         return $this->markdown('mails/customer-verify-email')
-            ->subject("Verify your email address. Complete your registration")
+            ->subject($defaultSubject)
             ->with("data", $this->data);
     }
 }

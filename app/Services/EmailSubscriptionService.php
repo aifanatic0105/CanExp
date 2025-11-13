@@ -227,9 +227,9 @@ class EmailSubscriptionService
 
         try {
             if ($queue) {
-                //----Mail::to($email)->send($mailable);
+                Mail::to($email)->send($mailable);
             } else {
-                //----Mail::to($email)->send($mailable);
+                Mail::to($email)->send($mailable);
             }
             return true;
         } catch (\Exception $e) {
@@ -262,9 +262,9 @@ class EmailSubscriptionService
 
             try {
                 if ($queue) {
-                    //----Mail::to($email)->send(clone $mailable);
+                    Mail::to($email)->send(clone $mailable);
                 } else {
-                    //----Mail::to($email)->send(clone $mailable);
+                    Mail::to($email)->send(clone $mailable);
                 }
                 $results['sent']++;
             } catch (\Exception $e) {

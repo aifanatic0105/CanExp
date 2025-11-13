@@ -2543,6 +2543,11 @@ ul li {
 .cursor-pointer {
   cursor: pointer !important;
 }
+.select-none {
+  -webkit-user-select: none !important;
+     -moz-user-select: none !important;
+          user-select: none !important;
+}
 .resize-none {
   resize: none !important;
 }

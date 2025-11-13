@@ -57,7 +57,7 @@ class PasswordResetLinkController extends Controller
 
         $data = ['token' => $token, 'lang' => $defaultLang, 'email' => $request->email, 'is_admin' => Str::random(64)];
 
-        //----Mail::to($request->email)->send(new CustomerResetPasswordMail($data));
+        Mail::to($request->email)->send(new CustomerResetPasswordMail($data));
 
         $general_messages = getStaticTranslationByKey((isset($defaultLang) ? $defaultLang : null), 'general_messages', ['message_51']);
         $message_51 = isset($general_messages['message_51']) ? $general_messages['message_51'] : '';

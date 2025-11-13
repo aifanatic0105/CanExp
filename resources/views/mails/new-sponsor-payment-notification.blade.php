@@ -99,7 +99,16 @@
                 <div>{{ $sponsor->paid_at ? $sponsor->paid_at->format('F j, Y \a\t g:i A') : 'N/A' }}</div>
             </div>
             
-            @if($sponsor->beneficiary)
+            @if($sponsor->relationLoaded('beneficiaries') && $sponsor->beneficiaries->isNotEmpty())
+            <div class="detail-row">
+                <span class="label">Beneficiaries:</span>
+                <div>
+                    @foreach($sponsor->beneficiaries as $beneficiary)
+                        <div>{{ $beneficiary->name }}</div>
+                    @endforeach
+                </div>
+            </div>
+            @elseif($sponsor->beneficiary)
             <div class="detail-row">
                 <span class="label">Beneficiary:</span>
                 <div>{{ $sponsor->beneficiary->name }}</div>

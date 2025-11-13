@@ -10,6 +10,7 @@ use App\Mail\NewSponsorPaymentNotification;
 use App\Mail\SponsorContactRequestNotification;
 use App\Mail\SponsorCredentialsMail;
 use App\Models\Banner;
+use App\Models\CoffeeWallBeneficiary;
 use App\Models\Customer;
 use App\Models\Sponsor;
 use App\Rules\ValidUrl;
@@ -79,11 +80,11 @@ class BecomeSponsorController extends Controller
         if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
             $to_email = $adminEmailsArr[0];
             unset($adminEmailsArr[0]);
-            //----Mail::to($to_email)->cc($adminEmailsArr)->send(new BecomeSponsorMail($data));
+            Mail::to($to_email)->cc($adminEmailsArr)->send(new BecomeSponsorMail($data));
         } else {
             $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
             if ($to_email) {
-                //----Mail::to($to_email)->send(new BecomeSponsorMail($data));
+                Mail::to($to_email)->send(new BecomeSponsorMail($data));
             }
         }
 
@@ -179,6 +180,8 @@ class BecomeSponsorController extends Controller
                 'email' => 'required|email|max:255',
                 'contact_number' => 'required|string|max:50',
                 'url' => 'nullable|url',  // Use Laravel's built-in URL validation after normalization
+                'beneficiary_ids' => 'nullable|array',
+                'beneficiary_ids.*' => 'exists:coffee_wall_beneficiaries,id',
             ];
             
             // Password only required for NEW users (not logged in AND email doesn't exist)
@@ -191,7 +194,8 @@ class BecomeSponsorController extends Controller
                 $rules = array_merge($rules, [
                     'sponsorship_amount' => 'required|numeric|min:1',
                     'frequency' => 'required|in:one_time,monthly,quarterly,annually',
-                    'beneficiary_id' => 'required|exists:coffee_wall_beneficiaries,id',
+                    'beneficiary_ids' => 'required|array|min:1',
+                    'beneficiary_ids.*' => 'exists:coffee_wall_beneficiaries,id',
                     'payment_method' => 'required|in:stripe,paypal',
                     'summary' => 'required|string',
                     'detail_description' => 'required|string',
@@ -235,7 +239,8 @@ class BecomeSponsorController extends Controller
                 'sponsorship_amount.required' => 'Please select a sponsorship amount',
                 'sponsorship_amount.numeric' => 'Sponsorship amount must be a number',
                 'sponsorship_amount.min' => 'Sponsorship amount must be at least $1',
-                'beneficiary_id.required' => 'Please select a beneficiary',
+                'beneficiary_ids.required' => 'Please select at least one beneficiary',
+                'beneficiary_ids.array' => 'Invalid beneficiary selection',
                 'payment_method.required' => 'Please select a payment method',
                 'logo.required' => 'Profile Image is required',
                 'featured_image.required' => 'Featured Image is required',
@@ -246,6 +251,32 @@ class BecomeSponsorController extends Controller
             $validated = $request->validate($rules, $messages);
 
             Log::info('Validation passed');
+
+            $beneficiaryIds = collect($request->input('beneficiary_ids', []))
+                ->map(fn ($id) => (int) $id)
+                ->filter(fn ($id) => $id > 0)
+                ->unique()
+                ->values();
+
+            $allBeneficiaryId = CoffeeWallBeneficiary::query()
+                ->whereRaw('LOWER(name) = ?', ['all'])
+                ->value('id');
+
+            if ($allBeneficiaryId) {
+                if ($beneficiaryIds->contains((int) $allBeneficiaryId) && $beneficiaryIds->count() > 1) {
+                    $beneficiaryIds = $beneficiaryIds->reject(fn ($id) => $id === (int) $allBeneficiaryId)->values();
+                }
+
+                if ($beneficiaryIds->isEmpty()) {
+                    $beneficiaryIds = collect([(int) $allBeneficiaryId]);
+                }
+            }
+
+            if (!$talkToUsFirst && $beneficiaryIds->isEmpty()) {
+                return $this->errorResponse('Please select at least one beneficiary.');
+            }
+
+            $primaryBeneficiaryId = $beneficiaryIds->first();
 
             // Handle file uploads
             $logoMediaId = null;
@@ -373,7 +404,7 @@ class BecomeSponsorController extends Controller
                             'company_name' => $request->company_name,
                             'contact_name' => $request->contact_name,
                             'email' => $request->email,
-                            'beneficiary_id' => $request->beneficiary_id,
+                            'beneficiary_ids' => $beneficiaryIds->implode(','),
                         ],
                     ]);
 
@@ -426,7 +457,7 @@ class BecomeSponsorController extends Controller
                 'preferred_call_date' => $request->preferred_call_date ?? null,
                 'talk_to_us_name' => $request->talk_to_us_name ?? null,
                 'talk_to_us_phone' => $request->talk_to_us_phone ?? null,
-                'beneficiary_id' => $request->beneficiary_id ?? null,
+                'beneficiary_id' => $primaryBeneficiaryId,
                 'payment_status' => $paymentStatus,
                 'payment_method' => $request->payment_method ?? null,
                 'transaction_id' => $transactionId,
@@ -441,6 +472,12 @@ class BecomeSponsorController extends Controller
 
             Log::info('Sponsor created', ['sponsor_id' => $sponsor->id]);
 
+            if ($beneficiaryIds->isNotEmpty()) {
+                $sponsor->beneficiaries()->sync($beneficiaryIds->all());
+            }
+
+            $sponsor->load(['beneficiaries', 'beneficiary']);
+
             // Send admin notifications
             $general_setting = getGeneralSettingByKey();
             if (isset($general_setting['admin_email'])) {
@@ -448,17 +485,17 @@ class BecomeSponsorController extends Controller
                 
                 if ($talkToUsFirst) {
                     // Send "Talk to Us" notification
-                    //----Mail::to($adminEmailsArr)->send(new SponsorContactRequestNotification($sponsor));
+                    Mail::to($adminEmailsArr)->send(new SponsorContactRequestNotification($sponsor));
                 } elseif ($paymentStatus === 'paid') {
                     // Send payment success notification
-                    //----Mail::to($adminEmailsArr)->send(new NewSponsorPaymentNotification($sponsor));
+                    Mail::to($adminEmailsArr)->send(new NewSponsorPaymentNotification($sponsor));
                 }
             }
 
             // Send welcome email to sponsor if new account (no password needed - they set it themselves)
             if ($sendWelcomeEmail && $customer) {
                 // You can send a welcome email here if needed
-                // //----Mail::to($request->email)->send(new SponsorWelcomeMail([
+                // Mail::to($request->email)->send(new SponsorWelcomeMail([
                 //     'name' => $request->contact_name
                 // ]));
             }
@@ -580,7 +617,7 @@ class BecomeSponsorController extends Controller
 
             // Get all sponsorships for this customer
             $sponsors = Sponsor::where('customer_id', $customer->id)
-                ->with(['logoMedia', 'featuredMedia', 'beneficiary'])
+                ->with(['logoMedia', 'featuredMedia', 'beneficiaries', 'beneficiary'])
                 ->orderBy('created_at', 'desc')
                 ->get();
 
@@ -618,7 +655,7 @@ class BecomeSponsorController extends Controller
             // Get specific sponsorship that belongs to this customer
             $sponsor = Sponsor::where('id', $id)
                 ->where('customer_id', $customer->id)
-                ->with(['logoMedia', 'featuredMedia', 'beneficiary'])
+                ->with(['logoMedia', 'featuredMedia', 'beneficiaries', 'beneficiary'])
                 ->first();
 
             if (!$sponsor) {

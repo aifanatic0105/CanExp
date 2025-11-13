@@ -539,7 +539,7 @@ class HelperController extends Controller
                 }])->whereId($event->id)->first();
 
 
-                // //----Mail::to(Auth::guard('customers')->user()->email)->send(new EventCreationInvoiceMail($event, 'customer'));
+                // Mail::to(Auth::guard('customers')->user()->email)->send(new EventCreationInvoiceMail($event, 'customer'));
                 $general_setting = getGeneralSettingByKey();
                 if (isset($general_setting['admin_email'])) {
                     $adminEmailsArr = explode(',', $general_setting['admin_email']);
@@ -548,11 +548,11 @@ class HelperController extends Controller
                 // if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
                 //     $to_email = $adminEmailsArr[0];
                 //     unset($adminEmailsArr[0]);
-                //     //----Mail::to($to_email)->cc($adminEmailsArr)->send(new EventCreationInvoiceMail($event, 'admin'));
+                //     Mail::to($to_email)->cc($adminEmailsArr)->send(new EventCreationInvoiceMail($event, 'admin'));
                 // } else {
                 //     $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
                 //     if ($to_email) {
-                //         //----Mail::to($to_email)->send(new EventCreationInvoiceMail($event, 'admin'));
+                //         Mail::to($to_email)->send(new EventCreationInvoiceMail($event, 'admin'));
                 //     }
                 // }
 
@@ -897,7 +897,7 @@ class HelperController extends Controller
                 // }])->whereId($event->id)->first();
 
 
-                // //----Mail::to(Auth::guard('customers')->user()->email)->send(new EventCreationInvoiceMail($event, 'customer'));
+                // Mail::to(Auth::guard('customers')->user()->email)->send(new EventCreationInvoiceMail($event, 'customer'));
                 // $general_setting = getGeneralSettingByKey();
                 // if (isset($general_setting['admin_email'])) {
                 //     $adminEmailsArr = explode(',', $general_setting['admin_email']);
@@ -906,11 +906,11 @@ class HelperController extends Controller
                 // if (isset($adminEmailsArr) && count($adminEmailsArr) > 1) {
                 //     $to_email = $adminEmailsArr[0];
                 //     unset($adminEmailsArr[0]);
-                //     // //----Mail::to($to_email)->cc($adminEmailsArr)->send(new EventCreationInvoiceMail($event, 'admin'));
+                //     // Mail::to($to_email)->cc($adminEmailsArr)->send(new EventCreationInvoiceMail($event, 'admin'));
                 // } else {
                 //     $to_email = isset($adminEmailsArr[0]) ? $adminEmailsArr[0] : null;
                 //     if ($to_email) {
-                //         // //----Mail::to($to_email)->send(new EventCreationInvoiceMail($event, 'admin'));
+                //         // Mail::to($to_email)->send(new EventCreationInvoiceMail($event, 'admin'));
                 //     }
                 // }
 

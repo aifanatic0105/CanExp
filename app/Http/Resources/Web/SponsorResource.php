@@ -34,6 +34,14 @@ class SponsorResource extends JsonResource
             
             // Relationships
             'beneficiary' => $this->whenLoaded('beneficiary'),
+            'beneficiaries' => $this->whenLoaded('beneficiaries', function () {
+                return $this->beneficiaries->map(function ($beneficiary) {
+                    return [
+                        'id' => $beneficiary->id,
+                        'name' => $beneficiary->name,
+                    ];
+                });
+            }),
             'logo_media' => $this->whenLoaded('logoMedia', function() {
                 return [
                     'id' => $this->logoMedia->id,

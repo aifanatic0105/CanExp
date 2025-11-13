@@ -26,8 +26,7 @@
                   v-model="form.talk_to_us_first"
                   @change="onOptionChange(false)"
                 />
-                <span class="text-2xl mb-2">💳</span>
-                <span class="font-bold">Enter Your Amount</span>
+                <span class="font-bold font-FuturaMdCnBT">Enter Your Amount</span>
                 <span class="text-sm mt-2 opacity-90">Make a sponsorship payment now</span>
               </label>
             </div>
@@ -50,8 +49,7 @@
                   v-model="form.talk_to_us_first"
                   @change="onOptionChange(true)"
                 />
-                <span class="text-2xl mb-2">📞</span>
-                <span class="font-bold">Talk to Us First</span>
+                <span class="font-bold font-FuturaMdCnBT">Talk to Us First</span>
                 <span class="text-sm mt-2 opacity-90">Let's discuss before you commit</span>
               </label>
             </div>
@@ -59,38 +57,40 @@
         </div>
       </div>
 
-      <!-- AMOUNT & BENEFICIARY (Only for "Enter Your Amount" option) -->
+      <!-- Sponsorship Amount & Frequency (Only for "Enter Your Amount" option) -->
       <div v-if="!form.talk_to_us_first" class="bg-white rounded-lg overflow-hidden shadow-3xl my-6">
         <div class="px-4 py-3 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md">
-          <h4 class="text-white">Sponsorship Details</h4>
+          <h4 class="text-white">Select Your Sponsorship Amount & Frequency</h4>
         </div>
         <div class="p-6">
-          <!-- Amount Selection -->
           <div class="relative w-full mb-6">
-            <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg font-medium">
-              Select Your Sponsorship Amount & Frequency
-              <span class="text-red-500">*</span>
-            </label>
-            
-            <!-- Frequency Tabs -->
-            <div class="flex flex-wrap gap-2 mb-4">
-              <button
-                v-for="(label, key) in frequencies"
-                :key="key"
-                type="button"
-                @click="selectedFrequency = key"
-                class="px-4 py-2 rounded-md font-medium text-sm transition-all"
-                :class="
-                  selectedFrequency === key
-                    ? 'bg-primary text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                "
-              >
-                {{ label }}
-              </button>
-            </div>
+            <fieldset class="flex items-center border w-full overflow-hidden bg-white rounded-md md:rounded-lg shadow-sm">
+              <div v-for="(label, key, index) in frequencies" :key="key" class="w-full">
+                <label
+                  class="w-full block cursor-pointer px-5 py-5 text-base md:text-lg text-center border rounded-none"
+                  :class="[
+                    selectedFrequency === key
+                      ? 'text-white bg-primary border-primary'
+                      : 'text-primary bg-white border-gray-300',
+                    index === 0 ? 'rounded-l-md md:rounded-l-lg' : '',
+                    index === Object.keys(frequencies).length - 1 ? 'rounded-r-md md:rounded-r-lg' : ''
+                  ]"
+                >
+                  <input
+                    type="radio"
+                    name="sponsorship_frequency"
+                    class="sr-only"
+                    :value="key"
+                    v-model="selectedFrequency"
+                    @change="onFrequencyChange(key)"
+                  />
+                  <span class="select-none font-FuturaMdCnBT text-base md:text-lg">{{ label }}</span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
 
-            <!-- Amount Cards for Selected Frequency -->
+          <div id="sponsorship_amount" class="relative w-full">
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div v-for="amount in getAmountsByFrequency(selectedFrequency)" :key="amount.id">
                 <div
@@ -102,42 +102,46 @@
                   "
                   @click="updateSponsorAmount(amount)"
                 >
-                  <span class="text-center font-bold">${{ formatAmount(amount.amount) }}</span>
-                  <span class="text-xs text-gray-500 mt-1">{{ getFrequencyLabel(amount.frequency) }}</span>
+                  <span class="text-center font-bold select-none font-FuturaMdCnBT">${{ formatAmount(amount.amount) }}</span>
                 </div>
               </div>
             </div>
-            
-            <!-- No amounts message -->
-            <div v-if="getAmountsByFrequency(selectedFrequency).length === 0" class="text-center py-8 text-gray-500">
+
+            <div
+              v-if="getAmountsByFrequency(selectedFrequency).length === 0"
+              class="text-center py-8 text-gray-500"
+            >
               No sponsorship amounts available for this frequency.
             </div>
-            
+
             <Error v-if="submitted" fieldName="sponsorship_amount" :validationErros="validationErros" full_width="1" />
           </div>
+        </div>
+      </div>
 
-          <!-- Beneficiary Selection -->
-          <div class="relative w-full">
-            <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg font-medium">
-              Select Beneficiary
-              <span class="text-red-500">*</span>
-            </label>
+      <!-- Beneficiary Selection (Only for "Enter Your Amount" option) -->
+      <div v-if="!form.talk_to_us_first" class="bg-white rounded-lg overflow-hidden shadow-3xl my-6">
+        <div class="px-4 py-3 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md">
+          <h4 class="text-white">Select Beneficiary</h4>
+        </div>
+        <div class="p-6">
+          <div id="beneficiary_ids" class="relative w-full">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div v-for="beneficiary in beneficiaries" :key="beneficiary.id">
                 <div
-                  class="bg-gray-50 rounded-md border shadow text-base md:text-lg font-medium flex items-center justify-center h-12 hover:shadow-md border-gray-100 cursor-pointer hover:border-2 hover:border-green-500 transition-all"
+                  class="bg-gray-50 rounded-md border shadow text-base p-2 md:text-lg font-medium flex items-center justify-center h-12 hover:shadow-md border-gray-100 cursor-pointer hover:border-2 hover:border-green-500 transition-all"
                   :class="
-                    form.beneficiary_id == beneficiary.id
+                    isBeneficiarySelected(beneficiary.id)
                       ? 'border-2 border-green-500 text-green-600 bg-green-50'
                       : ''
                   "
-                  @click="updateBeneficiary(beneficiary)"
+                  @click="toggleBeneficiary(beneficiary)"
                 >
-                  <span class="text-center">{{ beneficiary.name }}</span>
+                  <span class="text-center font-FuturaMdCnBT text-base md:text-lg select-none">{{ beneficiary.name }}</span>
                 </div>
               </div>
             </div>
-            <Error v-if="submitted" fieldName="beneficiary_id" :validationErros="validationErros" full_width="1" />
+            <Error v-if="submitted" fieldName="beneficiary_ids" :validationErros="validationErros" full_width="1" />
           </div>
         </div>
       </div>
@@ -150,7 +154,7 @@
         <div class="p-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="relative w-full">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="talk_to_us_name">
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="talk_to_us_name">
                 Your Name
                 <span class="text-red-500">*</span>
               </label>
@@ -166,7 +170,7 @@
             </div>
 
             <div class="relative w-full">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="talk_to_us_phone">
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="talk_to_us_phone">
                 Phone Number
                 <span class="text-red-500">*</span>
               </label>
@@ -182,7 +186,7 @@
             </div>
 
             <div class="relative w-full">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="preferred_call_time">
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="preferred_call_time">
                 Best Time to Call
                 <span class="text-red-500">*</span>
               </label>
@@ -200,7 +204,7 @@
             </div>
 
             <div class="relative w-full">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="preferred_call_date">
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="preferred_call_date">
                 Preferred Date (Optional)
               </label>
               <input
@@ -220,13 +224,13 @@
       <!-- COMPANY INFORMATION -->
       <div class="bg-white rounded-lg overflow-hidden shadow-3xl my-6">
         <div class="px-4 py-3 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md">
-          <h4 class="text-white">Company Information</h4>
+          <h4 class="text-white">Your Business Information</h4>
         </div>
         <div class="p-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="relative w-full">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="company_name">
-                Company Name
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="company_name">
+                Business Name
                 <span class="text-red-500">*</span>
               </label>
               <input
@@ -234,15 +238,14 @@
                 id="company_name"
                 v-model="form.company_name"
                 class="can-exp-input"
-                placeholder="Your Company Inc."
                 @input="clearErrors('company_name')"
               />
               <Error v-if="submitted" fieldName="company_name" :validationErros="validationErros" />
             </div>
 
             <div class="relative w-full">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="contact_name">
-                Contact Person Name
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="contact_name">
+                Your Name and Title
                 <span class="text-red-500">*</span>
               </label>
               <input
@@ -250,15 +253,16 @@
                 id="contact_name"
                 v-model="form.contact_name"
                 class="can-exp-input"
-                placeholder="John Doe"
+                :placeholder="contactNameInstruction"
+                :title="contactNameInstruction"
                 @input="clearErrors('contact_name')"
               />
               <Error v-if="submitted" fieldName="contact_name" :validationErros="validationErros" />
             </div>
 
             <div class="relative w-full">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="email">
-                Email Address
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="email">
+                Your Email
                 <span class="text-red-500">*</span>
               </label>
               <input
@@ -266,15 +270,15 @@
                 id="email"
                 v-model="form.email"
                 class="can-exp-input"
-                placeholder="john@company.com"
+                placeholder="You will use this email to log in to your account"
                 @input="clearErrors('email')"
               />
               <Error v-if="submitted" fieldName="email" :validationErros="validationErros" />
             </div>
 
             <div class="relative w-full">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="contact_number">
-                Contact Number
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="contact_number">
+                Phone Number
                 <span class="text-red-500">*</span>
               </label>
               <input
@@ -282,15 +286,15 @@
                 id="contact_number"
                 v-model="form.contact_number"
                 class="can-exp-input"
-                placeholder="+1 (555) 123-4567"
+                placeholder="Numbers only. With area code"
                 @input="clearErrors('contact_number')"
               />
               <Error v-if="submitted" fieldName="contact_number" :validationErros="validationErros" />
             </div>
 
             <div class="relative w-full" v-if="!isLoggedIn">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="password">
-                Password
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="password">
+                Select Password (Min. 8 characters. uppercase & lowercase)
                 <span class="text-red-500">*</span>
               </label>
               <div class="relative">
@@ -299,7 +303,6 @@
                   id="password"
                   v-model="form.password"
                   class="can-exp-input"
-                  placeholder="Enter your password"
                   @input="clearErrors('password')"
                 />
                 <button
@@ -319,7 +322,7 @@
             </div>
 
             <div class="relative w-full" v-if="!isLoggedIn">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="password_confirmation">
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="password_confirmation">
                 Confirm Password
                 <span class="text-red-500">*</span>
               </label>
@@ -329,7 +332,6 @@
                   id="password_confirmation"
                   v-model="form.password_confirmation"
                   class="can-exp-input"
-                  placeholder="Confirm your password"
                   @input="clearErrors('password_confirmation')"
                   @blur="checkPasswordMatch"
                 />
@@ -350,8 +352,8 @@
             </div>
 
             <div class="relative w-full md:col-span-2">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="url">
-                Company Website
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="url">
+                Your Website
                 {{ !form.talk_to_us_first ? "" : "(Optional)" }}
               </label>
               <input
@@ -359,7 +361,6 @@
                 id="url"
                 v-model="form.url"
                 class="can-exp-input"
-                placeholder="https://www.yourcompany.com"
                 @input="clearErrors('url')"
               />
               <Error v-if="submitted" fieldName="url" :validationErros="validationErros" />
@@ -371,13 +372,13 @@
       <!-- COMPANY DESCRIPTION & IMAGES -->
       <div class="bg-white rounded-lg overflow-hidden shadow-3xl my-6">
         <div class="px-4 py-3 sm:px-6 text-left bg-gradient-to-r from-primary via-primary to-secondary rounded-t-md">
-          <h4 class="text-white">Company Description & Media</h4>
+          <h4 class="text-white">Business Description & Media</h4>
         </div>
         <div class="p-6">
           <div class="grid grid-cols-1 gap-4">
             <div class="relative w-full">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="summary">
-                Brief Description
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="summary">
+                Brief Introduction
                 {{ !form.talk_to_us_first ? "(Required)" : "(Optional)" }}
                 <span v-if="!form.talk_to_us_first" class="text-red-500">*</span>
               </label>
@@ -386,14 +387,14 @@
                 v-model="form.summary"
                 rows="3"
                 class="can-exp-input resize-none"
-                placeholder="A brief overview of your company..."
+                placeholder="Describe the nature of your business in no more than 30 words. You can write your business slogan, company mission, or highlight your competitive advantage. This information will appear next to your company name on the search result page and will help you to attract visitors to your profile page. Make sure to describe your business in an engaging, informative way so that when the importer reads it, they will be more inclined to click on your profile page. to check out your business profile. For example, if the importer is looking for product x, from Canada, they will carry out a search on the Canadian Exports website and may come up with 20+ search results. Each one of these results will have their own short business description and the importer will click on the one that appeals to them the most. That's why your description about what you offer needs to be as eye-catching as possible to stand out from the rest of your competitors."
                 @input="clearErrors('summary')"
               ></textarea>
               <Error v-if="submitted" fieldName="summary" :validationErros="validationErros" />
             </div>
 
             <div class="relative w-full">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="detail_description">
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="detail_description">
                 Detailed Description
                 {{ !form.talk_to_us_first ? "(Required)" : "(Optional)" }}
                 <span v-if="!form.talk_to_us_first" class="text-red-500">*</span>
@@ -401,24 +402,24 @@
               <textarea
                 id="detail_description"
                 v-model="form.detail_description"
-                rows="5"
+                rows="4"
                 class="can-exp-input resize-none"
-                placeholder="Tell us more about your company, products, and services..."
+                placeholder="This is the text that will appear on your actual business profile page. Once the importer has selected YOUR company and clicked on YOUR name in the search results page, they will be taken to your business profile page. Use this space to outline what your business does and why potential customers should choose YOU. Your description should be no more than 300 words and include details about your products and services. This is your opportunity to reach potential clients, introduce them to your products, and attract further business"
                 @input="clearErrors('detail_description')"
               ></textarea>
               <Error v-if="submitted" fieldName="detail_description" :validationErros="validationErros" />
             </div>
 
             <div class="relative w-full">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="message">
-                Additional Message (Optional)
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="message">
+                Additional Message
               </label>
               <textarea
                 id="message"
                 v-model="form.message"
                 rows="3"
                 class="can-exp-input resize-none"
-                placeholder="Any additional information you'd like to share..."
+                placeholder="Is there any additional information you'd like to share with us, or specific support you'd like to receive before we get in touch?"
                 @input="clearErrors('message')"
               ></textarea>
               <Error v-if="submitted" fieldName="message" :validationErros="validationErros" />
@@ -426,7 +427,7 @@
 
             <!-- Featured Image Upload (appears on Home page) -->
             <div class="relative w-full">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="featured_image">
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="featured_image">
                 Featured Image (appears on the Home page)
                 <span class="text-red-500">*</span>
               </label>
@@ -448,7 +449,7 @@
 
             <!-- Profile Image Upload -->
             <div class="relative w-full">
-              <label class="block text-gray-900 mb-2 text-base md:text-base lg:text-lg" for="logo">
+              <label class="block text-gray-900 text-base md:text-base lg:text-lg" for="logo">
                 Profile Image
                 <span class="text-red-500">*</span>
               </label>
@@ -569,7 +570,7 @@
             Processing...
           </span>
           <span v-else>
-            {{ form.talk_to_us_first ? "Request Contact" : "Complete Sponsorship" }}
+            Submit
           </span>
         </button>
       </div>
@@ -625,7 +626,7 @@ export default {
         talk_to_us_first: false,
         sponsorship_amount: null,
         frequency: 'one_time',
-        beneficiary_id: null,
+        beneficiary_ids: [],
         payment_method: "stripe",
         company_name: "",
         contact_name: "",
@@ -652,12 +653,15 @@ export default {
       groupedAmounts: {},
       frequencies: {},
       selectedFrequency: 'one_time',
+      allBeneficiaryId: null,
       logo_path: [],
       featured_image_path: [],
       uploaded_files: {
         logo: null,
         featured_image: null,
       },
+      contactNameInstruction:
+        "Please include your full name and the title you would like to be addressed by, separated by a dash or hyphen. For example, John Smith - Sales Manager",
       loading: false,
       validationErros: new ErrorHandling(),
       submitted: false,
@@ -761,12 +765,21 @@ export default {
         const response = await axios.get(`${process.env.MIX_WEB_API_URL}get-coffee-wall-beneficiaries`);
         if (response.data.status === "Success") {
           this.beneficiaries = response.data.data;
-          
-          // Set "All" as default beneficiary
-          const allBeneficiary = this.beneficiaries.find(b => b.name.toLowerCase() === 'all');
-          if (allBeneficiary && !this.form.beneficiary_id) {
-            this.form.beneficiary_id = allBeneficiary.id;
+
+          const allBeneficiary = this.beneficiaries.find(
+            (b) => typeof b.name === 'string' && b.name.toLowerCase() === 'all'
+          );
+          this.allBeneficiaryId = allBeneficiary ? Number(allBeneficiary.id) : null;
+
+          if (!Array.isArray(this.form.beneficiary_ids)) {
+            this.form.beneficiary_ids = [];
           }
+
+          if (!this.form.beneficiary_ids.length && this.allBeneficiaryId) {
+            this.form.beneficiary_ids = [this.allBeneficiaryId];
+          }
+
+          this.ensureBeneficiarySelection();
         }
       } catch (error) {
         console.error("Error fetching beneficiaries:", error);
@@ -781,40 +794,130 @@ export default {
           this.groupedAmounts = response.data.data.grouped || {};
           this.frequencies = response.data.data.frequencies || {};
           
-          // Set default frequency to 'one_time' if available
-          if (this.frequencies['one_time']) {
-            this.selectedFrequency = 'one_time';
-          } else {
-            // Otherwise, use the first available frequency
-            const firstFrequency = Object.keys(this.frequencies)[0];
-            if (firstFrequency) {
-              this.selectedFrequency = firstFrequency;
+          const frequencyKeys = Object.keys(this.frequencies);
+          if (frequencyKeys.length) {
+            if (this.form.frequency && frequencyKeys.includes(this.form.frequency)) {
+              this.selectedFrequency = this.form.frequency;
+            } else if (frequencyKeys.includes('one_time')) {
+              this.selectedFrequency = 'one_time';
+              this.form.frequency = 'one_time';
+            } else {
+              this.selectedFrequency = frequencyKeys[0];
+              this.form.frequency = frequencyKeys[0];
             }
           }
-          
-          // Set default amount for the selected frequency
-          const defaultAmount = this.sponsorAmounts.find(
-            a => a.is_default && a.frequency === this.selectedFrequency
-          );
-          if (defaultAmount && !this.form.sponsorship_amount) {
-            this.form.sponsorship_amount = defaultAmount.amount;
-            this.form.frequency = defaultAmount.frequency;
-          }
+
+          this.onFrequencyChange(this.selectedFrequency);
         }
       } catch (error) {
         console.error("Error fetching sponsor amounts:", error);
       }
     },
 
-    updateBeneficiary(beneficiary) {
-      this.form.beneficiary_id = beneficiary.id;
-      this.clearErrors("beneficiary_id");
+    onFrequencyChange(frequencyKey) {
+      if (!frequencyKey) {
+        return;
+      }
+
+      this.selectedFrequency = frequencyKey;
+      this.form.frequency = frequencyKey;
+
+      const amounts = this.getAmountsByFrequency(frequencyKey);
+      const hasSelectedAmount = amounts.some(
+        (amount) =>
+          Number(amount.amount) === Number(this.form.sponsorship_amount) && amount.frequency === frequencyKey
+      );
+
+      if (!hasSelectedAmount) {
+        const defaultAmount = amounts.find((amount) => amount.is_default);
+        const fallbackAmount = defaultAmount || amounts[0];
+
+        if (fallbackAmount) {
+          this.form.sponsorship_amount = fallbackAmount.amount;
+          this.form.frequency = fallbackAmount.frequency;
+        } else {
+          this.form.sponsorship_amount = null;
+        }
+      }
+
+      this.clearErrors("sponsorship_amount");
     },
 
     updateSponsorAmount(amount) {
+      this.selectedFrequency = amount.frequency;
       this.form.sponsorship_amount = amount.amount;
       this.form.frequency = amount.frequency;
       this.clearErrors("sponsorship_amount");
+    },
+
+    toggleBeneficiary(beneficiary) {
+      if (!beneficiary || !beneficiary.id) {
+        return;
+      }
+
+      if (!Array.isArray(this.form.beneficiary_ids)) {
+        this.form.beneficiary_ids = [];
+      }
+
+      const id = Number(beneficiary.id);
+      const allId = Number(this.allBeneficiaryId);
+
+      if (allId && id === allId) {
+        this.form.beneficiary_ids = [allId];
+        this.clearErrors("beneficiary_ids");
+        return;
+      }
+
+      const existingIndex = this.form.beneficiary_ids.findIndex(
+        (selectedId) => Number(selectedId) === id
+      );
+
+      if (existingIndex > -1) {
+        this.form.beneficiary_ids.splice(existingIndex, 1);
+      } else {
+        this.form.beneficiary_ids.push(id);
+      }
+
+      this.form.beneficiary_ids = this.form.beneficiary_ids
+        .map((selectedId) => Number(selectedId))
+        .filter((value, index, self) => !Number.isNaN(value) && self.indexOf(value) === index);
+
+      this.ensureBeneficiarySelection();
+      this.clearErrors("beneficiary_ids");
+    },
+
+    isBeneficiarySelected(id) {
+      if (!Array.isArray(this.form.beneficiary_ids)) {
+        return false;
+      }
+
+      return this.form.beneficiary_ids.map(Number).includes(Number(id));
+    },
+
+    ensureBeneficiarySelection() {
+      if (!Array.isArray(this.form.beneficiary_ids)) {
+        this.form.beneficiary_ids = [];
+      }
+
+      this.form.beneficiary_ids = this.form.beneficiary_ids
+        .map((id) => Number(id))
+        .filter((id, index, self) => !Number.isNaN(id) && self.indexOf(id) === index);
+
+      const allId = Number(this.allBeneficiaryId);
+
+      if (!allId) {
+        return;
+      }
+
+      const hasAllSelected = this.form.beneficiary_ids.includes(allId);
+
+      if (hasAllSelected && this.form.beneficiary_ids.length > 1) {
+        this.form.beneficiary_ids = this.form.beneficiary_ids.filter((id) => id !== allId);
+      }
+
+      if (!this.form.beneficiary_ids.length) {
+        this.form.beneficiary_ids = [allId];
+      }
     },
 
     getAmountsByFrequency(frequency) {
@@ -822,10 +925,6 @@ export default {
         return this.groupedAmounts[frequency];
       }
       return [];
-    },
-
-    getFrequencyLabel(frequency) {
-      return this.frequencies[frequency] || frequency;
     },
 
     formatAmount(amount) {
@@ -918,12 +1017,12 @@ export default {
           message: this.form.message,
           logo: this.uploaded_files.logo,
           featured_image: this.uploaded_files.featured_image,
+        beneficiary_ids: this.form.beneficiary_ids,
         };
 
         if (!this.form.talk_to_us_first) {
           // Payment option
           formData.sponsorship_amount = this.form.sponsorship_amount;
-          formData.beneficiary_id = this.form.beneficiary_id;
           formData.payment_method = this.form.payment_method;
           if (this.form.payment_method === "stripe") {
             formData.payment_method_id = this.form.payment_method_id;
@@ -1004,7 +1103,8 @@ export default {
       this.form = {
         talk_to_us_first: false,
         sponsorship_amount: null,
-        beneficiary_id: null,
+        frequency: 'one_time',
+        beneficiary_ids: [],
         payment_method: "stripe",
         company_name: "",
         contact_name: "",
@@ -1019,7 +1119,7 @@ export default {
         logo: null,
         featured_image: null,
         cardholder_name: "",
-        stripe_payment_method_id: null,
+        payment_method_id: null,
         talk_to_us_name: "",
         talk_to_us_phone: "",
         preferred_call_time: "morning",
@@ -1044,6 +1144,10 @@ export default {
       if (this.cardElement) {
         this.cardElement.clear();
       }
+
+      this.selectedFrequency = this.form.frequency;
+      this.ensureBeneficiarySelection();
+      this.onFrequencyChange(this.selectedFrequency);
     },
 
     scrollToFirstError() {
